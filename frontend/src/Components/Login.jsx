@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-// import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { useFormik } from 'formik';
@@ -31,16 +30,6 @@ export const Login = () => {
     inputRef.current.focus();
   }, []);
 
-  // useEffect(() => {
-  //   if (errorInfo.status === 401) {
-  //     setErrorMessage('the username or password is incorrect');
-  //   } else if (errorInfo.status === 500) {
-  //     setErrorMessage('Network error');
-  //   } else {
-  //     setErrorMessage(errorInfo.message);
-  //   }
-  // }, [errorInfo]);
-
   const formik = useFormik({
     initialValues: {
       username: '',
@@ -51,6 +40,7 @@ export const Login = () => {
       setAuthFailed(false);
 
       try {
+        console.log(routes.loginPath());
         const res = await axios.post(routes.loginPath(), values);
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();

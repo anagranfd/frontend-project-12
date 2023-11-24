@@ -3,11 +3,9 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  // Link,
   Navigate,
   useLocation,
 } from 'react-router-dom';
-// import { Button, Navbar, Nav } from 'react-bootstrap';
 
 import AuthContext from './contexts/index.jsx';
 import useAuth from './hooks/index.jsx';
@@ -54,9 +52,9 @@ const App = () => {
               path="/"
               element={
                 <MainRoute>
-                  <h1 className="text-center mt-5 mb-4">
+                  {/* <h1 className="text-center mt-5 mb-4">
                     Welcome to the main page!
-                  </h1>
+                  </h1> */}
                   <MainPage />
                 </MainRoute>
               }
