@@ -11,6 +11,7 @@ import AuthContext from './contexts/index.jsx';
 import useAuth from './hooks/index.jsx';
 
 import { Login } from './Components/Login';
+import { Signup } from './Components/Signup';
 import { Page404 } from './Components/Page404';
 import { MainPage } from './Components/MainPage';
 
@@ -46,7 +47,7 @@ const App = () => {
   return (
     <AuthProvider>
       <Router>
-        <div className="container p-3">
+        <div className="container">
           <Routes>
             <Route
               path="/"
@@ -60,6 +61,7 @@ const App = () => {
               }
             />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="*" element={<Page404 />} />
           </Routes>
         </div>

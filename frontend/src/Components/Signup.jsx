@@ -18,7 +18,7 @@ const SignupSchema = Yup.object().shape({
     .required('Обязательное поле'),
 });
 
-export const Login = () => {
+export const Signup = () => {
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -41,11 +41,11 @@ export const Login = () => {
 
       try {
         // console.log(routes.loginPath());
-        const res = await axios.post(routes.loginPath(), values);
+        const res = await axios.post(routes.signupPath(), values);
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();
         console.log(JSON.stringify(res.data));
-        navigate('/');
+        navigate(routes.loginPagePath());
       } catch (err) {
         formik.setSubmitting(false);
         setAuthFailed(true);
@@ -74,7 +74,7 @@ export const Login = () => {
   return (
     <div className="container-fluid">
       <div className="row justify-content-center pt-4">
-        <h1>Login</h1>
+        <h1>Signup</h1>
         <div className="col-sm-4" style={{ width: '400px' }}>
           <Form onSubmit={formik.handleSubmit} className="p-3">
             <fieldset>
@@ -124,14 +124,14 @@ export const Login = () => {
               <div className="d-flex justify-content-end m-3">
                 <Button
                   onClick={() => {
-                    navigate(routes.signupPagePath());
+                    navigate(routes.loginPagePath());
                   }}
                   type="button"
                   className="me-2"
-                  variant="outline-secondary"
+                  variant="btn btn-outline-secondary"
                   style={{ width: '150px' }}
                 >
-                  Signup
+                  Back to login
                 </Button>
                 <Button
                   type="submit"

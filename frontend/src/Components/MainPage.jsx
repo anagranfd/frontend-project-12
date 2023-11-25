@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { io } from 'socket.io-client';
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { addChannel, removeChannel } from '../slices/channelsSlice.js';
 import { addMessage } from '../slices/messagesSlice.js';
 import routes from '../routes.js';
@@ -19,11 +21,14 @@ export const MainPage = () => {
   const channels = useSelector((state) => state.channels);
   const messages = useSelector((state) => state.messages);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const [data, setData] = useState(null);
+  // const [data, setData] = useState(null);
   const [currentChannelId, setCurrentChannel] = useState(null);
   const username = JSON.parse(localStorage.getItem('userId')).username;
   const messageInputRef = useRef(null);
+
+  const socket = io();
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -40,13 +45,34 @@ export const MainPage = () => {
         });
         // console.log(channels, messages);
         setCurrentChannel(currentChannelId);
-        setData(response.data);
+        // setData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
     fetchContent();
+
+    socket.on('connect_error', () => {
+      console.log('Произошла ошибка соединения с сервером.');
+      setTimeout(() => {
+        socket.connect();
+      }, 1000);
+    });
+
+    socket.on('newMessage', (message) => {
+      dispatch(addMessage({ message }));
+    });
+
+    socket.on('disconnect', (reason) => {
+      if (reason === 'io server disconnect') {
+        socket.connect();
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const handleChannelClick = (channel) => {
@@ -60,20 +86,50 @@ export const MainPage = () => {
       return;
     }
     const newMessage = {
-      id: messages.ids.length + 1,
       body: messageText,
       channelId: currentChannelId,
       username,
     };
     // console.log('Новое сообщение:', newMessage);
     // console.log(messages);
-    dispatch(addMessage({ message: newMessage }));
+    socket.emit('newMessage', newMessage, (response) => {
+      if (response && response.status === 'ok') {
+        console.log('Сообщение успешно обработано сервером.');
+      } else {
+        console.log('Произошла ошибка при обработке сообщения сервером.');
+      }
+    });
     messageInputRef.current.value = '';
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    socket.disconnect();
+    navigate(routes.loginPagePath());
   };
 
   return (
     <>
       {/* {data && <pre>{JSON.stringify(data, null, 2)}</pre>} */}
+      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <div className="container-fluid">
+          <a className="navbar-brand" href="#">
+            MyChat
+          </a>
+
+          <div className="d-flex">
+            <button
+              onClick={() => {
+                handleLogout();
+              }}
+              className="btn btn-primary"
+              type="button"
+            >
+              Выйти
+            </button>
+          </div>
+        </div>
+      </nav>
       <div
         className="container d-flex flex-column p-3 overflow-hidden rounded shadow"
         style={{ height: '90vh' }}
