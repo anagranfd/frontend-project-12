@@ -1,11 +1,19 @@
 import axios from 'axios';
-import { io } from 'socket.io-client';
+// import socket from './socket.js';
+import io from 'socket.io-client';
 import React, { useEffect, useState, useRef } from 'react';
+// import { useImmer } from 'use-immer';
+import getModal from './modals/index.js';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { addChannel, removeChannel } from '../slices/channelsSlice.js';
-import { addMessage } from '../slices/messagesSlice.js';
+import {
+  addChannel,
+  removeChannel,
+  renameChannel,
+} from '../slices/channelsSlice.js';
+import { addMessage, removeMessages } from '../slices/messagesSlice.js';
 import routes from '../routes.js';
+import PlusSquareIcon from '../assets/plus-square.svg';
 import { Channels } from './Channels.jsx';
 import { Messages } from './Messages.jsx';
 
@@ -18,8 +26,14 @@ const getAuthHeader = () => {
 };
 
 export const MainPage = () => {
+  // const [items, setItems] = useImmer([]);
+  const [modalInfo, setModalInfo] = useState({ type: null, item: null });
+  const hideModal = () => setModalInfo({ type: null, item: null });
+  const showModal = (type, item = null) => setModalInfo({ type, item });
+
   const channels = useSelector((state) => state.channels);
   const messages = useSelector((state) => state.messages);
+  console.log(messages);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -62,6 +76,24 @@ export const MainPage = () => {
 
     socket.on('newMessage', (message) => {
       dispatch(addMessage({ message }));
+    });
+
+    socket.on('newChannel', (channel) => {
+      dispatch(addChannel({ channel }));
+      setCurrentChannel(channels.id);
+    });
+
+    socket.on('renameChannel', (channel) => {
+      dispatch(renameChannel({ channel }));
+    });
+
+    socket.on('removeChannel', (channel) => {
+      console.log(channel);
+      dispatch(removeChannel({ channel }));
+      dispatch(removeMessages({ channel }));
+      if (currentChannelId === channel.id) {
+        setCurrentChannel(channels.ids[0]);
+      }
     });
 
     socket.on('disconnect', (reason) => {
@@ -108,6 +140,17 @@ export const MainPage = () => {
     navigate(routes.loginPagePath());
   };
 
+  const renderModal = ({ modalInfo, hideModal, setItems }) => {
+    if (!modalInfo.type) {
+      return null;
+    }
+
+    const Component = getModal(modalInfo.type);
+    return (
+      <Component modalInfo={modalInfo} setItems={setItems} onHide={hideModal} />
+    );
+  };
+
   return (
     <>
       {/* {data && <pre>{JSON.stringify(data, null, 2)}</pre>} */}
@@ -136,16 +179,28 @@ export const MainPage = () => {
       >
         <div className="row d-flex flex-row flex-grow-1">
           <div className="col-3 chat-sidebar">
+            <div className="d-flex justify-content-between align-items-center mb-4 mt-3 w-100">
+              <strong>Каналы</strong>
+              <img
+                src={PlusSquareIcon}
+                alt="Bootstrap"
+                onClick={() => showModal('addChannel')}
+                width="24"
+                height="24"
+                className="ms-2"
+              />
+            </div>
             <Channels
               channels={channels.entities}
               handleChannelClick={handleChannelClick}
+              showModal={showModal}
               currentChannelId={currentChannelId}
             />
           </div>
           <div className="col-9 d-flex flex-column flex-grow-1">
             <div className="card d-flex flex-column flex-grow-1">
               <div className="card-header">
-                <strong>{`#${
+                <strong>{`# ${
                   currentChannelId && channels.entities[currentChannelId]?.name
                 }`}</strong>
                 <p>{`${
@@ -177,6 +232,7 @@ export const MainPage = () => {
           </div>
         </div>
       </div>
+      {renderModal({ modalInfo, hideModal })}
     </>
   );
 };
