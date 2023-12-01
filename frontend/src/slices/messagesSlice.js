@@ -18,11 +18,12 @@ const messagesSlice = createSlice({
       // state.ids.push(message.id);
     },
     removeMessages(state, action) {
-      const { channelId } = action.payload;
-      // console.log(state.entities[message.id]);
+      const { id } = action.payload.channel;
+      // console.log(id);
       const filteredEntries = Object.entries(state.entities).filter(
-        ([msgId, message]) => message.channelId !== channelId
+        ([msgId, message]) => message.channelId !== id
       );
+      console.log(filteredEntries);
       const filteredIds = filteredEntries.map(([msgId]) => msgId);
       state.entities = Object.fromEntries(filteredEntries);
       state.ids = [...filteredIds];

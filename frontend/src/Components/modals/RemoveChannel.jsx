@@ -6,16 +6,21 @@ import io from 'socket.io-client';
 const socket = io();
 
 const generateOnSubmit =
-  ({ modalInfo, onHide }) =>
+  ({ modalInfo, onHide, disableButtons, enableButtons, setToastMessage }) =>
   (e) => {
     e.preventDefault();
     console.log(modalInfo);
+    disableButtons();
     const channelIdToRemove = modalInfo.item;
     socket.emit('removeChannel', channelIdToRemove, (response) => {
       if (response && response.status === 'ok') {
+        setToastMessage('Канал успешно удален сервером.');
         console.log('Канал успешно удален сервером.');
+        enableButtons();
       } else {
+        setToastMessage('Произошла ошибка при удалении канала сервером.');
         console.log('Произошла ошибка при удалении канала сервером.');
+        enableButtons();
       }
     });
     // console.log(messages);
