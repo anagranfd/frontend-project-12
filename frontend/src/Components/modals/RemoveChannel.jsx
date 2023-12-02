@@ -1,12 +1,13 @@
 import React from 'react';
 import { Modal, FormGroup } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 // import socket from '../socket.js';
 import io from 'socket.io-client';
 
 const socket = io();
 
 const generateOnSubmit =
-  ({ modalInfo, onHide, disableButtons, enableButtons, setToastMessage }) =>
+  ({ modalInfo, onHide, disableButtons, enableButtons, setToastMessage, t }) =>
   (e) => {
     e.preventDefault();
     console.log(modalInfo);
@@ -14,12 +15,14 @@ const generateOnSubmit =
     const channelIdToRemove = modalInfo.item;
     socket.emit('removeChannel', channelIdToRemove, (response) => {
       if (response && response.status === 'ok') {
-        setToastMessage('Канал успешно удален сервером.');
-        console.log('Канал успешно удален сервером.');
+        setToastMessage(t('authForm.fetchingErrors.channelRemovingDelivered'));
+        console.log(t('authForm.fetchingErrors.channelRemovingDelivered'));
         enableButtons();
       } else {
-        setToastMessage('Произошла ошибка при удалении канала сервером.');
-        console.log('Произошла ошибка при удалении канала сервером.');
+        setToastMessage(
+          t('authForm.fetchingErrors.channelRemovingDeliveryFailed')
+        );
+        console.log(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
         enableButtons();
       }
     });
@@ -29,12 +32,13 @@ const generateOnSubmit =
 
 const Remove = (props) => {
   const { onHide } = props;
-  const onSubmit = generateOnSubmit(props);
+  const { t } = useTranslation();
+  const onSubmit = generateOnSubmit({ ...props, t });
 
   return (
     <Modal show>
       <Modal.Header closeButton onHide={onHide}>
-        <Modal.Title>Вы хотите удалить канал?</Modal.Title>
+        <Modal.Title>{t('modal.removeChannelTitle')}</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -43,7 +47,7 @@ const Remove = (props) => {
             <input
               type="submit"
               className="btn btn-danger mt-2"
-              value="remove"
+              value={t('modal.removeChannelSubmitButton')}
             />
           </FormGroup>
         </form>

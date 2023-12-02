@@ -6,11 +6,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import getModal from './modals/index.js';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import {
-  addChannel,
-  // removeChannel,
-  // renameChannel,
-} from '../slices/channelsSlice.js';
+import { useTranslation } from 'react-i18next';
+import { addChannel } from '../slices/channelsSlice.js';
 import { addMessage, removeMessages } from '../slices/messagesSlice.js';
 import routes from '../routes.js';
 import PlusSquareIcon from '../assets/plus-square.svg';
@@ -27,6 +24,7 @@ const getAuthHeader = () => {
 };
 
 export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
+  const { t } = useTranslation();
   // const [items, setItems] = useImmer([]);
   const messageInputRef = useRef(null);
   const submitButtonRef = useRef(null);
@@ -109,12 +107,12 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
 
     socket.emit('newMessage', newMessage, (response) => {
       if (response && response.status === 'ok') {
-        setToastMessage('Сообщение успешно обработано сервером.');
-        console.log(toastMessage);
+        setToastMessage(t('authForm.fetchingErrors.newMessageDelivered'));
+        console.log(t('authForm.fetchingErrors.newMessageDelivered'));
         enableButtons();
       } else {
-        setToastMessage('Произошла ошибка при обработке сообщения сервером.');
-        console.log(toastMessage);
+        setToastMessage(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
+        console.log(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
         enableButtons();
       }
     });
@@ -167,7 +165,7 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
           <a className="navbar-brand" href="#">
-            Hexlet Chat
+            {t('mainPage.navTitle')}
           </a>
 
           <div className="d-flex">
@@ -179,7 +177,7 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
               type="button"
               ref={logoutButtonRef}
             >
-              Выйти
+              {t('mainPage.logoutButton')}
             </button>
           </div>
         </div>
@@ -191,7 +189,7 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
         <div className="row d-flex flex-row flex-grow-1">
           <div className="col-3 chat-sidebar">
             <div className="d-flex justify-content-between align-items-center mb-4 mt-3 w-100">
-              <strong>Каналы</strong>
+              <strong>{t('mainPage.channels')}</strong>
               <img
                 src={PlusSquareIcon}
                 alt="Bootstrap"
@@ -214,11 +212,13 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
                 <strong>{`# ${
                   currentChannelId && channels.entities[currentChannelId]?.name
                 }`}</strong>
-                <p>{`${
-                  Object.values(messages.entities).filter(
-                    (m) => Number(m.channelId) === currentChannelId
-                  ).length
-                } сообщений`}</p>
+                <p>
+                  {t('mainPage.messages.key', {
+                    count: Object.values(messages.entities).filter(
+                      (m) => Number(m.channelId) === currentChannelId
+                    ).length,
+                  })}
+                </p>
               </div>
               <Messages
                 messages={messages.entities}
@@ -230,7 +230,7 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
                     type="text"
                     className="form-control rounded-2 me-2"
                     ref={messageInputRef}
-                    placeholder="Введите сообщение..."
+                    placeholder={t('mainPage.newMessagePlaceholder')}
                   />
                   <div className="input-group-append">
                     <button
@@ -238,7 +238,7 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
                       type="submit"
                       ref={submitButtonRef}
                     >
-                      Отправить
+                      {t('mainPage.newMessageButton')}
                     </button>
                   </div>
                 </form>

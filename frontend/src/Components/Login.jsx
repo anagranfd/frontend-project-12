@@ -4,21 +4,12 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import { Button, Form } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 
-const SignupSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(2, 'Минимум 2 буквы')
-    .max(50, 'Максимум 50 букв')
-    .required('Обязательное поле'),
-  password: Yup.string()
-    .min(4, 'Минимум 4 буквы')
-    .max(50, 'Максимум 50 букв')
-    .required('Обязательное поле'),
-});
-
 export const Login = () => {
+  const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,6 +20,17 @@ export const Login = () => {
   useEffect(() => {
     inputRef.current.focus();
   }, []);
+
+  const SignupSchema = Yup.object().shape({
+    username: Yup.string()
+      .min(3, t('authForm.validationErrors.usernameLettersMin'))
+      .max(20, t('authForm.validationErrors.usernameLettersMax'))
+      .required(t('authForm.validationErrors.requiredField')),
+    password: Yup.string()
+      .min(4, t('authForm.validationErrors.passwordLettersMin'))
+      .max(50, t('authForm.validationErrors.passwordLettersMax'))
+      .required(t('authForm.validationErrors.requiredField')),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -52,19 +54,21 @@ export const Login = () => {
         if (err.isAxiosError && err.response) {
           switch (err.response.status) {
             case 401:
-              setErrorMessage('the username or password is incorrect');
+              setErrorMessage(
+                t('authForm.fetchingErrors.usernameOrPasswordIncorrect')
+              );
               setAuthFailed(true);
               inputRef.current.select();
               break;
             case 500:
-              setErrorMessage('Network error');
+              setErrorMessage(t('authForm.fetchingErrors.networkError'));
               throw err;
             default:
-              setErrorMessage('An error occurred');
+              setErrorMessage(t('authForm.fetchingErrors.errorOccurred'));
               break;
           }
         } else {
-          setErrorMessage('An unknown error occurred');
+          setErrorMessage(t('authForm.fetchingErrors.unknownError'));
           throw err;
         }
       }
@@ -74,17 +78,19 @@ export const Login = () => {
   return (
     <div className="container-fluid">
       <div className="row justify-content-center pt-4">
-        <h1>Login</h1>
+        <h1>{t('loginTitle')}</h1>
         <div className="col-sm-4" style={{ width: '400px' }}>
           <Form onSubmit={formik.handleSubmit} className="p-3">
             <fieldset>
               <Form.Group className="m-3">
-                <Form.Label htmlFor="username">Username</Form.Label>
+                <Form.Label htmlFor="username">
+                  {t('authForm.username')}
+                </Form.Label>
                 <Form.Control
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.username}
-                  placeholder="Username"
+                  placeholder={t('authForm.usernamePlaceholder')}
                   name="username"
                   id="username"
                   autoComplete="username"
@@ -99,13 +105,15 @@ export const Login = () => {
                 ) : null}
               </Form.Group>
               <Form.Group className="m-3">
-                <Form.Label htmlFor="password">Password</Form.Label>
+                <Form.Label htmlFor="password">
+                  {t('authForm.password')}
+                </Form.Label>
                 <Form.Control
                   type="password"
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.password}
-                  placeholder="Password"
+                  placeholder={t('authForm.passwordPlaceholder')}
                   name="password"
                   id="password"
                   autoComplete="current-password"
@@ -131,7 +139,7 @@ export const Login = () => {
                   variant="outline-secondary"
                   style={{ width: '150px' }}
                 >
-                  Signup
+                  {t('signupTitle')}
                 </Button>
                 <Button
                   type="submit"
@@ -139,7 +147,7 @@ export const Login = () => {
                   variant="outline-primary"
                   style={{ width: '150px' }}
                 >
-                  Submit
+                  {t('loginTitle')}
                 </Button>
               </div>
             </fieldset>

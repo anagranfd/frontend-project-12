@@ -4,24 +4,12 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import { Button, Form } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 
-const SignupSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(3, 'Минимум 3 буквы')
-    .max(20, 'Максимум 20 букв')
-    .required('Обязательное поле'),
-  password: Yup.string()
-    .min(4, 'Минимум 4 буквы')
-    .max(50, 'Максимум 50 букв')
-    .required('Обязательное поле'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Пароли должны совпадать')
-    .required('Необходимо подтвердить пароль'),
-});
-
 export const Signup = () => {
+  const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -32,6 +20,23 @@ export const Signup = () => {
   useEffect(() => {
     inputRef.current.focus();
   }, []);
+
+  const SignupSchema = Yup.object().shape({
+    username: Yup.string()
+      .min(3, t('authForm.validationErrors.usernameLettersMin'))
+      .max(20, t('authForm.validationErrors.usernameLettersMax'))
+      .required(t('authForm.validationErrors.requiredField')),
+    password: Yup.string()
+      .min(4, t('authForm.validationErrors.passwordLettersMin'))
+      .max(50, t('authForm.validationErrors.passwordLettersMax'))
+      .required(t('authForm.validationErrors.requiredField')),
+    confirmPassword: Yup.string()
+      .oneOf(
+        [Yup.ref('password'), null],
+        t('authForm.validationErrors.confirmationFailed')
+      )
+      .required(t('authForm.validationErrors.confirmationRequired')),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -56,24 +61,28 @@ export const Signup = () => {
         if (err.isAxiosError && err.response) {
           switch (err.response.status) {
             case 409:
-              setErrorMessage('the username with this name already exists');
+              setErrorMessage(
+                t('authForm.fetchingErrors.usernameAlreadyExists')
+              );
               setAuthFailed(true);
               inputRef.current.select();
               break;
             case 401:
-              setErrorMessage('the username or password is incorrect');
+              setErrorMessage(
+                t('authForm.fetchingErrors.usernameOrPasswordIncorrect')
+              );
               setAuthFailed(true);
               inputRef.current.select();
               break;
             case 500:
-              setErrorMessage('Network error');
+              setErrorMessage(t('authForm.fetchingErrors.networkError'));
               throw err;
             default:
-              setErrorMessage('An error occurred');
+              setErrorMessage(t('authForm.fetchingErrors.errorOccurred'));
               break;
           }
         } else {
-          setErrorMessage('An unknown error occurred');
+          setErrorMessage(t('authForm.fetchingErrors.unknownError'));
           throw err;
         }
       }
@@ -83,17 +92,19 @@ export const Signup = () => {
   return (
     <div className="container-fluid">
       <div className="row justify-content-center pt-4">
-        <h1>Signup</h1>
+        <h1>{t('signupTitle')}</h1>
         <div className="col-sm-4" style={{ width: '400px' }}>
           <Form onSubmit={formik.handleSubmit} className="p-3">
             <fieldset>
               <Form.Group className="m-3">
-                <Form.Label htmlFor="username">Username</Form.Label>
+                <Form.Label htmlFor="username">
+                  {t('authForm.username')}
+                </Form.Label>
                 <Form.Control
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.username}
-                  placeholder="Username"
+                  placeholder={t('authForm.usernamePlaceholder')}
                   name="username"
                   id="username"
                   autoComplete="username"
@@ -108,13 +119,15 @@ export const Signup = () => {
                 ) : null}
               </Form.Group>
               <Form.Group className="m-3">
-                <Form.Label htmlFor="password">Password</Form.Label>
+                <Form.Label htmlFor="password">
+                  {t('authForm.password')}
+                </Form.Label>
                 <Form.Control
                   type="password"
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.password}
-                  placeholder="Password"
+                  placeholder={t('authForm.passwordPlaceholder')}
                   name="password"
                   id="password"
                   autoComplete="current-password"
@@ -129,14 +142,14 @@ export const Signup = () => {
               </Form.Group>
               <Form.Group className="m-3">
                 <Form.Label htmlFor="confirmPassword">
-                  Confirm Password
+                  {t('authForm.passwordConfirmation')}
                 </Form.Label>
                 <Form.Control
                   type="password"
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.confirmPassword}
-                  placeholder="Confirm Password"
+                  placeholder={t('authForm.passwordConfirmationPlaceholder')}
                   name="confirmPassword"
                   id="confirmPassword"
                   autoComplete="confirmPassword"
@@ -163,7 +176,7 @@ export const Signup = () => {
                   variant="btn btn-outline-secondary"
                   style={{ width: '150px' }}
                 >
-                  Back to login
+                  {t('loginTitle')}
                 </Button>
                 <Button
                   type="submit"
@@ -171,7 +184,7 @@ export const Signup = () => {
                   variant="outline-primary"
                   style={{ width: '150px' }}
                 >
-                  Submit
+                  {t('signupConfirm')}
                 </Button>
               </div>
             </fieldset>

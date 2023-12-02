@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useFormik } from 'formik';
 import { Modal, FormGroup, FormControl } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 // import socket from '../socket.js';
 import io from 'socket.io-client';
 
@@ -9,7 +10,7 @@ const socket = io();
 
 const generateOnSubmit =
   (
-    { modalInfo, onHide, disableButtons, enableButtons, setToastMessage },
+    { modalInfo, onHide, disableButtons, enableButtons, setToastMessage, t },
     channels
   ) =>
   (values) => {
@@ -23,20 +24,24 @@ const generateOnSubmit =
     ) {
       socket.emit('renameChannel', channelToRename, (response) => {
         if (response && response.status === 'ok') {
-          setToastMessage('Канал успешно перееименован сервером.');
-          console.log('Канал успешно перееименован сервером.');
+          setToastMessage(
+            t('authForm.fetchingErrors.channelRenamingDelivered')
+          );
+          console.log(t('authForm.fetchingErrors.channelRenamingDelivered'));
           enableButtons();
         } else {
           setToastMessage(
-            'Произошла ошибка при перееименовании канала сервером.'
+            t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
           );
-          console.log('Произошла ошибка при перееименовании канала сервером.');
+          console.log(
+            t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
+          );
           enableButtons();
         }
       });
     } else {
-      setToastMessage('Канал с таким именем уже существует.');
-      console.log('Канал с таким именем уже существует.');
+      setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
+      console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
       enableButtons();
     }
     onHide();
@@ -44,11 +49,12 @@ const generateOnSubmit =
 
 const Rename = (props) => {
   const { onHide, modalInfo } = props;
+  const { t } = useTranslation();
   const { item } = modalInfo;
   const channels = useSelector((state) => state.channels);
 
   const f = useFormik({
-    onSubmit: generateOnSubmit(props, channels),
+    onSubmit: generateOnSubmit({ ...props, t }, channels),
     initialValues: item,
   });
   const inputRef = useRef();
@@ -59,7 +65,7 @@ const Rename = (props) => {
   return (
     <Modal show>
       <Modal.Header closeButton onHide={onHide}>
-        <Modal.Title>Rename</Modal.Title>
+        <Modal.Title>{t('modal.renameChannelTitle')}</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -78,7 +84,7 @@ const Rename = (props) => {
           <input
             type="submit"
             className="btn btn-primary mt-2"
-            value="submit"
+            value={t('modal.renameChannelSubmitButton')}
           />
         </form>
       </Modal.Body>

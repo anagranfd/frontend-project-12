@@ -2,13 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import { useFormik } from 'formik';
 import { Modal, FormGroup, FormControl } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 // import socket from '../socket.js';
 import io from 'socket.io-client';
 
 const socket = io();
 
 const generateOnSubmit =
-  ({ onHide, disableButtons, enableButtons, setToastMessage }, channels) =>
+  ({ onHide, disableButtons, enableButtons, setToastMessage, t }, channels) =>
   (values) => {
     disableButtons();
     const newChannel = { name: values.body };
@@ -21,18 +22,20 @@ const generateOnSubmit =
     ) {
       socket.emit('newChannel', newChannel, (response) => {
         if (response && response.status === 'ok') {
-          setToastMessage('Канал успешно добавлен сервером.');
-          console.log('Канал успешно добавлен сервером.');
+          setToastMessage(t('authForm.fetchingErrors.newChannelDelivered'));
+          console.log(t('authForm.fetchingErrors.newChannelDelivered'));
           enableButtons();
         } else {
-          setToastMessage('Произошла ошибка при добавлении канала сервером.');
-          console.log('Произошла ошибка при добавлении канала сервером.');
+          setToastMessage(
+            t('authForm.fetchingErrors.newChannelDeliveryFailed')
+          );
+          console.log(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
           enableButtons();
         }
       });
     } else {
-      setToastMessage('Канал с таким именем уже существует.');
-      console.log('Канал с таким именем уже существует.');
+      setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
+      console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
       enableButtons();
     }
     onHide();
@@ -40,11 +43,12 @@ const generateOnSubmit =
 
 const AddChannel = (props) => {
   const { onHide } = props;
+  const { t } = useTranslation();
   const channels = useSelector((state) => state.channels);
   console.log(channels);
 
   const f = useFormik({
-    onSubmit: generateOnSubmit(props, channels),
+    onSubmit: generateOnSubmit({ ...props, t }, channels),
     initialValues: { body: '' },
   });
 
@@ -56,7 +60,7 @@ const AddChannel = (props) => {
   return (
     <Modal show>
       <Modal.Header closeButton onHide={onHide}>
-        <Modal.Title>Add Channel</Modal.Title>
+        <Modal.Title>{t('modal.addChannelTitle')}</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -75,7 +79,7 @@ const AddChannel = (props) => {
           <input
             type="submit"
             className="btn btn-primary mt-2"
-            value="submit"
+            value={t('modal.addChannelSubmitButton')}
           />
         </form>
       </Modal.Body>

@@ -23,7 +23,7 @@ export const Toast = ({ message, onClose }) => {
             type="button"
             className="btn-close me-2 m-auto"
             data-bs-dismiss="toast"
-            aria-label="Закрыть"
+            aria-label="Close"
             onClick={onClose}
           ></button>
         </div>
