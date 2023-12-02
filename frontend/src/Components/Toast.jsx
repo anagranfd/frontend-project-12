@@ -10,7 +10,7 @@ export const Toast = ({ message, onClose }) => {
   }, []);
 
   return (
-    <div className="toast-container position-absolute top-0 end-0 p-3">
+    <div className="toast-container position-absolute top-0 end-0 p-3 pt-5">
       <div
         className="toast align-items-center show"
         role="alert"

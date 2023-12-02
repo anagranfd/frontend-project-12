@@ -9,13 +9,16 @@ import routes from '../routes.js';
 
 const SignupSchema = Yup.object().shape({
   username: Yup.string()
-    .min(2, 'Минимум 2 буквы')
-    .max(50, 'Максимум 50 букв')
+    .min(3, 'Минимум 3 буквы')
+    .max(20, 'Максимум 20 букв')
     .required('Обязательное поле'),
   password: Yup.string()
     .min(4, 'Минимум 4 буквы')
     .max(50, 'Максимум 50 букв')
     .required('Обязательное поле'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Пароли должны совпадать')
+    .required('Необходимо подтвердить пароль'),
 });
 
 export const Signup = () => {
@@ -34,6 +37,7 @@ export const Signup = () => {
     initialValues: {
       username: '',
       password: '',
+      confirmPassword: '',
     },
     validationSchema: SignupSchema,
     onSubmit: async (values) => {
@@ -45,12 +49,17 @@ export const Signup = () => {
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();
         console.log(JSON.stringify(res.data));
-        navigate(routes.loginPagePath());
+        navigate(routes.mainPagePath());
       } catch (err) {
         formik.setSubmitting(false);
         setAuthFailed(true);
         if (err.isAxiosError && err.response) {
           switch (err.response.status) {
+            case 409:
+              setErrorMessage('the username with this name already exists');
+              setAuthFailed(true);
+              inputRef.current.select();
+              break;
             case 401:
               setErrorMessage('the username or password is incorrect');
               setAuthFailed(true);
@@ -84,7 +93,7 @@ export const Signup = () => {
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.username}
-                  placeholder="username"
+                  placeholder="Username"
                   name="username"
                   id="username"
                   autoComplete="username"
@@ -105,7 +114,7 @@ export const Signup = () => {
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.password}
-                  placeholder="password"
+                  placeholder="Password"
                   name="password"
                   id="password"
                   autoComplete="current-password"
@@ -115,6 +124,29 @@ export const Signup = () => {
                 {formik.touched.password && formik.errors.password ? (
                   <div className="invalid-feedback d-block">
                     {formik.errors.password}
+                  </div>
+                ) : null}
+              </Form.Group>
+              <Form.Group className="m-3">
+                <Form.Label htmlFor="confirmPassword">
+                  Confirm Password
+                </Form.Label>
+                <Form.Control
+                  type="password"
+                  onChange={formik.handleChange}
+                  // onBlur={formik.handleBlur}
+                  value={formik.values.confirmPassword}
+                  placeholder="Confirm Password"
+                  name="confirmPassword"
+                  id="confirmPassword"
+                  autoComplete="confirmPassword"
+                  isInvalid={authFailed}
+                  required
+                />
+                {formik.touched.confirmPassword &&
+                formik.errors.confirmPassword ? (
+                  <div className="invalid-feedback d-block">
+                    {formik.errors.confirmPassword}
                   </div>
                 ) : null}
                 <Form.Control.Feedback type="invalid">

@@ -45,7 +45,7 @@ export const Login = () => {
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();
         console.log(JSON.stringify(res.data));
-        navigate('/');
+        navigate(routes.mainPagePath());
       } catch (err) {
         formik.setSubmitting(false);
         setAuthFailed(true);
@@ -84,7 +84,7 @@ export const Login = () => {
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.username}
-                  placeholder="username"
+                  placeholder="Username"
                   name="username"
                   id="username"
                   autoComplete="username"
@@ -105,7 +105,7 @@ export const Login = () => {
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.password}
-                  placeholder="password"
+                  placeholder="Password"
                   name="password"
                   id="password"
                   autoComplete="current-password"

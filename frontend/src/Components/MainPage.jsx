@@ -167,7 +167,7 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
           <a className="navbar-brand" href="#">
-            MyChat
+            Hexlet Chat
           </a>
 
           <div className="d-flex">
