@@ -9,10 +9,10 @@ import io from 'socket.io-client';
 const socket = io();
 
 const generateOnSubmit =
-  ({ onHide, disableButtons, enableButtons, setToastMessage, t }, channels) =>
+  ({ onHide, disableButtons, enableButtons, notify, filter, t }, channels) =>
   (values) => {
     disableButtons();
-    const newChannel = { name: values.body };
+    const newChannel = { name: filter.clean(values.body) };
     console.log(newChannel);
     // Object.values(channels.entities).find(({ name }) => console.log(name));
     if (
@@ -22,20 +22,23 @@ const generateOnSubmit =
     ) {
       socket.emit('newChannel', newChannel, (response) => {
         if (response && response.status === 'ok') {
-          setToastMessage(t('authForm.fetchingErrors.newChannelDelivered'));
+          // setToastMessage(t('authForm.fetchingErrors.newChannelDelivered'));
           console.log(t('authForm.fetchingErrors.newChannelDelivered'));
+          notify(t('authForm.fetchingErrors.newChannelDelivered'));
           enableButtons();
         } else {
-          setToastMessage(
-            t('authForm.fetchingErrors.newChannelDeliveryFailed')
-          );
+          // setToastMessage(
+          //   t('authForm.fetchingErrors.newChannelDeliveryFailed')
+          // );
           console.log(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
+          notify(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
           enableButtons();
         }
       });
     } else {
-      setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
+      // setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
       console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
+      notify(t('authForm.fetchingErrors.channelAlreadyExists'));
       enableButtons();
     }
     onHide();

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 
-export const Signup = () => {
+export const Signup = ({ notify, toastContainer }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
@@ -64,6 +64,7 @@ export const Signup = () => {
               setErrorMessage(
                 t('authForm.fetchingErrors.usernameAlreadyExists')
               );
+              notify(t('authForm.fetchingErrors.usernameAlreadyExists'));
               setAuthFailed(true);
               inputRef.current.select();
               break;
@@ -71,18 +72,22 @@ export const Signup = () => {
               setErrorMessage(
                 t('authForm.fetchingErrors.usernameOrPasswordIncorrect')
               );
+              notify(t('authForm.fetchingErrors.usernameOrPasswordIncorrect'));
               setAuthFailed(true);
               inputRef.current.select();
               break;
             case 500:
               setErrorMessage(t('authForm.fetchingErrors.networkError'));
+              notify(t('authForm.fetchingErrors.networkError'));
               throw err;
             default:
               setErrorMessage(t('authForm.fetchingErrors.errorOccurred'));
+              notify(t('authForm.fetchingErrors.errorOccurred'));
               break;
           }
         } else {
           setErrorMessage(t('authForm.fetchingErrors.unknownError'));
+          notify(t('authForm.fetchingErrors.unknownError'));
           throw err;
         }
       }
@@ -191,6 +196,7 @@ export const Signup = () => {
           </Form>
         </div>
       </div>
+      {toastContainer}
     </div>
   );
 };

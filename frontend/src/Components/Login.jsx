@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 
-export const Login = () => {
+export const Login = ({ notify, toastContainer }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
@@ -57,18 +57,22 @@ export const Login = () => {
               setErrorMessage(
                 t('authForm.fetchingErrors.usernameOrPasswordIncorrect')
               );
+              notify(t('authForm.fetchingErrors.usernameOrPasswordIncorrect'));
               setAuthFailed(true);
               inputRef.current.select();
               break;
             case 500:
               setErrorMessage(t('authForm.fetchingErrors.networkError'));
+              notify(t('authForm.fetchingErrors.networkError'));
               throw err;
             default:
               setErrorMessage(t('authForm.fetchingErrors.errorOccurred'));
+              notify(t('authForm.fetchingErrors.errorOccurred'));
               break;
           }
         } else {
           setErrorMessage(t('authForm.fetchingErrors.unknownError'));
+          notify(t('authForm.fetchingErrors.unknownError'));
           throw err;
         }
       }
@@ -154,6 +158,7 @@ export const Login = () => {
           </Form>
         </div>
       </div>
+      {toastContainer}
     </div>
   );
 };

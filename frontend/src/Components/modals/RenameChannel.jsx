@@ -10,12 +10,12 @@ const socket = io();
 
 const generateOnSubmit =
   (
-    { modalInfo, onHide, disableButtons, enableButtons, setToastMessage, t },
+    { modalInfo, onHide, disableButtons, enableButtons, notify, filter, t },
     channels
   ) =>
   (values) => {
     disableButtons();
-    const newChannelName = values.body;
+    const newChannelName = filter.clean(values.body);
     const channelToRename = { ...modalInfo.item, name: newChannelName };
     if (
       !Object.values(channels.entities).find(
@@ -24,24 +24,27 @@ const generateOnSubmit =
     ) {
       socket.emit('renameChannel', channelToRename, (response) => {
         if (response && response.status === 'ok') {
-          setToastMessage(
-            t('authForm.fetchingErrors.channelRenamingDelivered')
-          );
+          // setToastMessage(
+          //   t('authForm.fetchingErrors.channelRenamingDelivered')
+          // );
           console.log(t('authForm.fetchingErrors.channelRenamingDelivered'));
+          notify(t('authForm.fetchingErrors.channelRenamingDelivered'));
           enableButtons();
         } else {
-          setToastMessage(
-            t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
-          );
+          // setToastMessage(
+          //   t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
+          // );
           console.log(
             t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
           );
+          notify(t('authForm.fetchingErrors.channelRenamingDeliveryFailed'));
           enableButtons();
         }
       });
     } else {
-      setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
+      // setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
       console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
+      notify(t('authForm.fetchingErrors.channelAlreadyExists'));
       enableButtons();
     }
     onHide();

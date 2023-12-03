@@ -7,7 +7,7 @@ import io from 'socket.io-client';
 const socket = io();
 
 const generateOnSubmit =
-  ({ modalInfo, onHide, disableButtons, enableButtons, setToastMessage, t }) =>
+  ({ modalInfo, onHide, disableButtons, enableButtons, notify, t }) =>
   (e) => {
     e.preventDefault();
     console.log(modalInfo);
@@ -15,14 +15,16 @@ const generateOnSubmit =
     const channelIdToRemove = modalInfo.item;
     socket.emit('removeChannel', channelIdToRemove, (response) => {
       if (response && response.status === 'ok') {
-        setToastMessage(t('authForm.fetchingErrors.channelRemovingDelivered'));
+        // setToastMessage(t('authForm.fetchingErrors.channelRemovingDelivered'));
         console.log(t('authForm.fetchingErrors.channelRemovingDelivered'));
+        notify(t('authForm.fetchingErrors.channelRemovingDelivered'));
         enableButtons();
       } else {
-        setToastMessage(
-          t('authForm.fetchingErrors.channelRemovingDeliveryFailed')
-        );
+        // setToastMessage(
+        //   t('authForm.fetchingErrors.channelRemovingDeliveryFailed')
+        // );
         console.log(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
+        notify(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
         enableButtons();
       }
     });

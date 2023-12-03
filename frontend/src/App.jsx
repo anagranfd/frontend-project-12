@@ -12,6 +12,7 @@ import AuthContext from './contexts/index.jsx';
 import useAuth from './hooks/index.jsx';
 import io from 'socket.io-client';
 // import socket from './Components/socket.js';
+import { ToastContainer, toast } from 'react-toastify';
 
 import {
   addChannel,
@@ -59,6 +60,34 @@ const App = () => {
   // const messages = useSelector((state) => state.messages);
 
   const [currentChannelId, setCurrentChannel] = useState(null);
+
+  const notify = (msg) =>
+    toast(msg, {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
+    });
+
+  const toastContainer = (
+    <ToastContainer
+      position="top-right"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="light"
+    />
+  );
+
   const socket = io();
 
   socket.on('connect_error', () => {
@@ -120,12 +149,24 @@ const App = () => {
                     setCurrentChannel={setCurrentChannel}
                     currentChannelId={currentChannelId}
                     socket={socket}
+                    notify={notify}
+                    toastContainer={toastContainer}
                   />
                 </MainRoute>
               }
             />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route
+              path="/login"
+              element={
+                <Login notify={notify} toastContainer={toastContainer} />
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <Signup notify={notify} toastContainer={toastContainer} />
+              }
+            />
             <Route path="*" element={<Page404 />} />
           </Routes>
         </div>

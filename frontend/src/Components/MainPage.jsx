@@ -7,13 +7,20 @@ import getModal from './modals/index.js';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import filter from 'leo-profanity';
 import { addChannel } from '../slices/channelsSlice.js';
-import { addMessage, removeMessages } from '../slices/messagesSlice.js';
+import { addMessage } from '../slices/messagesSlice.js';
 import routes from '../routes.js';
 import PlusSquareIcon from '../assets/plus-square.svg';
 import { Channels } from './Channels.jsx';
 import { Messages } from './Messages.jsx';
-import { Toast } from './Toast.jsx';
+// import { Toast } from './Toast.jsx';
+import 'react-toastify/dist/ReactToastify.css';
+
+filter.clearList();
+
+filter.add(filter.getDictionary('en'));
+filter.add(filter.getDictionary('ru'));
 
 const getAuthHeader = () => {
   const userId = JSON.parse(localStorage.getItem('userId'));
@@ -23,7 +30,13 @@ const getAuthHeader = () => {
   return {};
 };
 
-export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
+export const MainPage = ({
+  setCurrentChannel,
+  currentChannelId,
+  socket,
+  notify,
+  toastContainer,
+}) => {
   const { t } = useTranslation();
   // const [items, setItems] = useImmer([]);
   const messageInputRef = useRef(null);
@@ -39,7 +52,7 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
   };
   const showModal = (type, item = null) => setModalInfo({ type, item });
 
-  const [toastMessage, setToastMessage] = useState(null);
+  // const [toastMessage, setToastMessage] = useState(null);
 
   const channels = useSelector((state) => state.channels);
   const messages = useSelector((state) => state.messages);
@@ -100,19 +113,21 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
       return;
     }
     const newMessage = {
-      body: messageText,
+      body: filter.clean(messageText),
       channelId: currentChannelId,
       username,
     };
 
     socket.emit('newMessage', newMessage, (response) => {
       if (response && response.status === 'ok') {
-        setToastMessage(t('authForm.fetchingErrors.newMessageDelivered'));
+        // setToastMessage(t('authForm.fetchingErrors.newMessageDelivered'));
         console.log(t('authForm.fetchingErrors.newMessageDelivered'));
+        notify(t('authForm.fetchingErrors.newMessageDelivered'));
         enableButtons();
       } else {
-        setToastMessage(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
+        // setToastMessage(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
         console.log(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
+        notify(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
         enableButtons();
       }
     });
@@ -132,6 +147,8 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
     disableButtons,
     enableButtons,
     setToastMessage,
+    notify,
+    filter,
   }) => {
     if (!modalInfo.type) {
       return null;
@@ -145,13 +162,15 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
         disableButtons={disableButtons}
         enableButtons={enableButtons}
         setToastMessage={setToastMessage}
+        notify={notify}
+        filter={filter}
       />
     );
   };
 
-  const closeToast = () => {
-    setToastMessage(null);
-  };
+  // const closeToast = () => {
+  //   setToastMessage(null);
+  // };
 
   // renderToast = ({msg, onClose}) => {
   //   return (
@@ -252,9 +271,12 @@ export const MainPage = ({ setCurrentChannel, currentChannelId, socket }) => {
         hideModal,
         disableButtons,
         enableButtons,
-        setToastMessage,
+        // setToastMessage,
+        notify,
+        filter,
       })}
-      {toastMessage && <Toast message={toastMessage} onClose={closeToast} />}
+      {toastContainer}
+      {/* {toastMessage && <Toast message={toastMessage} onClose={closeToast} />} */}
     </>
   );
 };
