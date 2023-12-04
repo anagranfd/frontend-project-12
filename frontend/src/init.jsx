@@ -11,9 +11,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 // import './index.css';
 
 const rollbarConfig = {
-  accessToken: '8065a019a70a4b80979e332822b6adf7',
-  captureUncaught: true,
-  captureUnhandledRejections: true,
+  accessToken: process.env.REACT_APP_ROLLBAR_ACCESS_TOKEN,
   environment: 'production',
 };
 
