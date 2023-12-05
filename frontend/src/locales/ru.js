@@ -39,6 +39,7 @@ const ru = {
         usernameLettersMax: 'От 3 до 20 символов',
         passwordLettersMin: 'Минимум 4 буквы',
         passwordLettersMax: 'Максимум 50 букв',
+        passwordLettersNotLess: 'Не менее 6 символов',
         confirmationFailed: 'Пароли должны совпадать',
         confirmationRequired: 'Необходимо подтвердить пароль',
         requiredField: 'Обязательное поле',

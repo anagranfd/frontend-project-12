@@ -27,8 +27,8 @@ export const Signup = ({ notify, toastContainer }) => {
       .max(20, t('authForm.validationErrors.usernameLettersMax'))
       .required(t('authForm.validationErrors.requiredField')),
     password: Yup.string()
-      .min(4, t('authForm.validationErrors.passwordLettersMin'))
-      .max(50, t('authForm.validationErrors.passwordLettersMax'))
+      .min(6, t('authForm.validationErrors.passwordLettersNotLess'))
+      // .max(50, t('authForm.validationErrors.passwordLettersMax'))
       .required(t('authForm.validationErrors.requiredField')),
     confirmPassword: Yup.string()
       .oneOf(
