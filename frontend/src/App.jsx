@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -25,6 +25,7 @@ import { Login } from './Components/Login';
 import { Signup } from './Components/Signup';
 import { Page404 } from './Components/Page404';
 import { MainPage } from './Components/MainPage';
+import { Navbar } from './Components/Navbar.jsx';
 
 const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -60,6 +61,7 @@ const App = () => {
   // const messages = useSelector((state) => state.messages);
 
   const [currentChannelId, setCurrentChannel] = useState(null);
+  const logoutButtonRef = useRef(null);
 
   const notify = (msg) =>
     toast(msg, {
@@ -136,21 +138,20 @@ const App = () => {
   return (
     <AuthProvider>
       <Router>
+        <Navbar logoutButtonRef={logoutButtonRef} socket={socket} />
         <div className="container">
           <Routes>
             <Route
               path="/"
               element={
                 <MainRoute>
-                  {/* <h1 className="text-center mt-5 mb-4">
-                    Welcome to the main page!
-                  </h1> */}
                   <MainPage
                     setCurrentChannel={setCurrentChannel}
                     currentChannelId={currentChannelId}
                     socket={socket}
                     notify={notify}
                     toastContainer={toastContainer}
+                    logoutButtonRef={logoutButtonRef}
                   />
                 </MainRoute>
               }

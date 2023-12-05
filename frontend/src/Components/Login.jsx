@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { useFormik } from 'formik';
-import { Button, Form } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Button, FloatingLabel, Form } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
@@ -82,21 +82,23 @@ export const Login = ({ notify, toastContainer }) => {
   return (
     <div className="container-fluid">
       <div className="row justify-content-center pt-4">
-        <h1>{t('loginTitle')}</h1>
+        <h1 className="text-center">{t('loginTitle')}</h1>
         <div className="col-sm-4" style={{ width: '400px' }}>
           <Form onSubmit={formik.handleSubmit} className="p-3">
             <fieldset>
-              <Form.Group className="m-3">
-                <Form.Label htmlFor="username">
-                  {t('authForm.username')}
-                </Form.Label>
+              <FloatingLabel
+                controlId="floatingInputUsername"
+                label={t('authForm.nickname')}
+                className="mb-3"
+              >
                 <Form.Control
+                  type="text"
                   onChange={formik.handleChange}
                   // onBlur={formik.handleBlur}
                   value={formik.values.username}
-                  placeholder={t('authForm.usernamePlaceholder')}
+                  placeholder={t('authForm.nicknamePlaceholder')}
                   name="username"
-                  id="username"
+                  // id="username"
                   autoComplete="username"
                   isInvalid={authFailed}
                   required
@@ -107,11 +109,13 @@ export const Login = ({ notify, toastContainer }) => {
                     {formik.errors.username}
                   </div>
                 ) : null}
-              </Form.Group>
-              <Form.Group className="m-3">
-                <Form.Label htmlFor="password">
-                  {t('authForm.password')}
-                </Form.Label>
+              </FloatingLabel>
+
+              <FloatingLabel
+                controlId="floatingInputPassword"
+                label={t('authForm.password')}
+                className="mb-3"
+              >
                 <Form.Control
                   type="password"
                   onChange={formik.handleChange}
@@ -119,8 +123,7 @@ export const Login = ({ notify, toastContainer }) => {
                   value={formik.values.password}
                   placeholder={t('authForm.passwordPlaceholder')}
                   name="password"
-                  id="password"
-                  autoComplete="current-password"
+                  // id="password"
                   isInvalid={authFailed}
                   required
                 />
@@ -132,26 +135,23 @@ export const Login = ({ notify, toastContainer }) => {
                 <Form.Control.Feedback type="invalid">
                   {errorMessage}
                 </Form.Control.Feedback>
-              </Form.Group>
-              <div className="d-flex justify-content-end m-3">
-                <Button
-                  onClick={() => {
-                    navigate(routes.signupPagePath());
-                  }}
-                  type="button"
-                  className="me-2"
-                  variant="outline-secondary"
-                  style={{ width: '150px' }}
-                >
-                  {t('signupTitle')}
-                </Button>
+              </FloatingLabel>
+
+              <div className="mb-3">
                 <Button
                   type="submit"
-                  className="ms-2"
+                  className="w-100 mb-2"
                   variant="outline-primary"
-                  style={{ width: '150px' }}
                 >
                   {t('loginTitle')}
+                </Button>
+                <Button
+                  onClick={() => navigate(routes.signupPagePath())}
+                  type="button"
+                  className="w-100"
+                  variant="outline-secondary"
+                >
+                  {t('signupTitle')}
                 </Button>
               </div>
             </fieldset>

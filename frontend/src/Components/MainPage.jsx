@@ -5,7 +5,7 @@ import React, { useEffect, useState, useRef } from 'react';
 // import { useImmer } from 'use-immer';
 import getModal from './modals/index.js';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import filter from 'leo-profanity';
 import { addChannel } from '../slices/channelsSlice.js';
@@ -36,12 +36,14 @@ export const MainPage = ({
   socket,
   notify,
   toastContainer,
+  logoutButtonRef,
 }) => {
   const { t } = useTranslation();
   // const [items, setItems] = useImmer([]);
   const messageInputRef = useRef(null);
   const submitButtonRef = useRef(null);
-  const logoutButtonRef = useRef(null);
+  const addChannelButtonRef = useRef(null);
+  // const logoutButtonRef = useRef(null);
   // const toastMessageRef = useRef(null);
 
   const [modalInfo, setModalInfo] = useState({ type: null, item: null });
@@ -52,13 +54,15 @@ export const MainPage = ({
   };
   const showModal = (type, item = null) => setModalInfo({ type, item });
 
+  const [isChannelButtonDisabled, setIsChannelButtonDisabled] = useState(false);
+
   // const [toastMessage, setToastMessage] = useState(null);
 
   const channels = useSelector((state) => state.channels);
   const messages = useSelector((state) => state.messages);
   console.log(messages);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // const [data, setData] = useState(null);
   // const [currentChannelId, setCurrentChannel] = useState(null);
@@ -68,11 +72,15 @@ export const MainPage = ({
 
   const disableButtons = () => {
     submitButtonRef.current.disabled = true;
+    // addChannelButtonRef.current.disabled = true;
+    setIsChannelButtonDisabled(true);
     logoutButtonRef.current.disabled = true;
   };
 
   const enableButtons = () => {
     submitButtonRef.current.disabled = false;
+    // addChannelButtonRef.current.disabled = false;
+    setIsChannelButtonDisabled(false);
     logoutButtonRef.current.disabled = false;
   };
 
@@ -122,23 +130,17 @@ export const MainPage = ({
       if (response && response.status === 'ok') {
         // setToastMessage(t('authForm.fetchingErrors.newMessageDelivered'));
         console.log(t('authForm.fetchingErrors.newMessageDelivered'));
-        notify(t('authForm.fetchingErrors.newMessageDelivered'));
+        // notify(t('authForm.fetchingErrors.newMessageDelivered'));
         enableButtons();
       } else {
         // setToastMessage(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
         console.log(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
-        notify(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
+        // notify(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
         enableButtons();
       }
     });
     messageInputRef.current.value = '';
     messageInputRef.current.focus();
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('userId');
-    socket.disconnect();
-    navigate(routes.loginPagePath());
   };
 
   const renderModal = ({
@@ -181,28 +183,8 @@ export const MainPage = ({
   return (
     <>
       {/* {data && <pre>{JSON.stringify(data, null, 2)}</pre>} */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container-fluid">
-          <a className="navbar-brand" href="#">
-            {t('mainPage.navTitle')}
-          </a>
-
-          <div className="d-flex">
-            <button
-              onClick={() => {
-                handleLogout();
-              }}
-              className="btn btn-primary"
-              type="button"
-              ref={logoutButtonRef}
-            >
-              {t('mainPage.logoutButton')}
-            </button>
-          </div>
-        </div>
-      </nav>
       <div
-        className="container d-flex flex-column p-3 overflow-hidden rounded shadow position-relative"
+        className="container d-flex flex-column p-3 mt-2 overflow-hidden rounded shadow position-relative"
         style={{ height: '90vh' }}
       >
         <div className="row d-flex flex-row flex-grow-1">
@@ -212,10 +194,19 @@ export const MainPage = ({
               <img
                 src={PlusSquareIcon}
                 alt="Bootstrap"
-                onClick={() => showModal('addChannel')}
+                type="button"
+                onClick={() => {
+                  if (!isChannelButtonDisabled) {
+                    showModal('addChannel');
+                  }
+                }}
                 width="24"
                 height="24"
-                className="ms-2"
+                className="ms-2 text-success"
+                style={{
+                  opacity: isChannelButtonDisabled ? 0.5 : 1,
+                }}
+                ref={addChannelButtonRef}
               />
             </div>
             <Channels

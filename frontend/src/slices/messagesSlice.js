@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { includes } from 'lodash';
 
 const messagesSlice = createSlice({
   name: 'messages',
@@ -15,7 +14,6 @@ const messagesSlice = createSlice({
       if (!state.ids.includes(message.id)) {
         state.ids.push(message.id);
       }
-      // state.ids.push(message.id);
     },
     removeMessages(state, action) {
       const { id } = action.payload.channel;
@@ -31,9 +29,6 @@ const messagesSlice = createSlice({
   },
 });
 
-// Слайс генерирует действия, которые экспортируются отдельно
-// Действия генерируются автоматически из имен ключей редьюсеров
 export const { addMessage, removeMessages } = messagesSlice.actions;
 
-// По умолчанию экспортируется редьюсер, сгенерированный слайсом
 export default messagesSlice.reducer;
