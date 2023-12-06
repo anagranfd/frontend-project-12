@@ -193,7 +193,8 @@ export const MainPage = ({
               <strong>{t('mainPage.channels')}</strong>
               <img
                 src={PlusSquareIcon}
-                alt="Bootstrap"
+                alt="+"
+                aria-label="+"
                 type="button"
                 onClick={() => {
                   if (!isChannelButtonDisabled) {
@@ -208,7 +209,6 @@ export const MainPage = ({
                 }}
                 ref={addChannelButtonRef}
               />
-              <span className="visually-hidden">+</span>
             </div>
             <Channels
               channels={channels.entities}
