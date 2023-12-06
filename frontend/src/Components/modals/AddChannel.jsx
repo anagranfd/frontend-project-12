@@ -77,7 +77,11 @@ const AddChannel = (props) => {
               value={f.values.body}
               data-testid="input-body"
               name="body"
+              id="body"
             />
+            <label className="visually-hidden" htmlFor="body">
+              {t('modal.addChannelSubmitButtonLabel')}
+            </label>
           </FormGroup>
           <input
             type="submit"
