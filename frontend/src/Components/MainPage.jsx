@@ -208,6 +208,7 @@ export const MainPage = ({
                 }}
                 ref={addChannelButtonRef}
               />
+              <span className="visually-hidden">+</span>
             </div>
             <Channels
               channels={channels.entities}
