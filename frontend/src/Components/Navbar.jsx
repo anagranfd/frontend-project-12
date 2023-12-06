@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes';
 
-export const Navbar = ({ logoutButtonRef, socket }) => {
+const Navbar = ({ logoutButtonRef, socket }) => {
   const auth = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -39,3 +39,5 @@ export const Navbar = ({ logoutButtonRef, socket }) => {
     </nav>
   );
 };
+
+export default Navbar;

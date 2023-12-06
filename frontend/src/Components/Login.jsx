@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 
-export const Login = ({ notify, toastContainer }) => {
+const Login = ({ notify, toastContainer }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
@@ -55,10 +55,10 @@ export const Login = ({ notify, toastContainer }) => {
           switch (err.response.status) {
             case 401:
               setErrorMessage(
-                t('authForm.fetchingErrors.usernameOrPasswordIncorrect')
+                t('authForm.fetchingErrors.usernameOrPasswordIncorrect'),
               );
               notify(
-                t('authForm.fetchingErrors.usernameOrPasswordIncorrectToast')
+                t('authForm.fetchingErrors.usernameOrPasswordIncorrectToast'),
               );
               setAuthFailed(true);
               inputRef.current.select();
@@ -164,3 +164,5 @@ export const Login = ({ notify, toastContainer }) => {
     </div>
   );
 };
+
+export default Login;

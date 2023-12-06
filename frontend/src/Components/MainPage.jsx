@@ -3,18 +3,18 @@ import axios from 'axios';
 // import io from 'socket.io-client';
 import React, { useEffect, useState, useRef } from 'react';
 // import { useImmer } from 'use-immer';
-import getModal from './modals/index.js';
 import { useSelector, useDispatch } from 'react-redux';
 // import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import filter from 'leo-profanity';
+import getModal from './modals/index.js';
 import { addChannel } from '../slices/channelsSlice.js';
 import { addMessage } from '../slices/messagesSlice.js';
 import routes from '../routes.js';
 import PlusSquareIcon from '../assets/plus-square.svg';
-import { Channels } from './Channels.jsx';
-import { Messages } from './Messages.jsx';
-// import { Toast } from './Toast.jsx';
+import Channels from './Channels.jsx';
+import Messages from './Messages.jsx';
+// import Toast from './Toast.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 
 filter.clearList();
@@ -30,7 +30,7 @@ const getAuthHeader = () => {
   return {};
 };
 
-export const MainPage = ({
+const MainPage = ({
   setCurrentChannel,
   currentChannelId,
   socket,
@@ -66,7 +66,7 @@ export const MainPage = ({
 
   // const [data, setData] = useState(null);
   // const [currentChannelId, setCurrentChannel] = useState(null);
-  const username = JSON.parse(localStorage.getItem('userId')).username;
+  const { username } = JSON.parse(localStorage.getItem('userId'));
 
   // const socket = io();
 
@@ -221,13 +221,16 @@ export const MainPage = ({
           <div className="col-9 d-flex flex-column flex-grow-1">
             <div className="card d-flex flex-column flex-grow-1">
               <div className="card-header">
-                <strong>{`# ${
-                  currentChannelId && channels.entities[currentChannelId]?.name
-                }`}</strong>
+                <strong>
+                  {`# ${
+                    currentChannelId
+                    && channels.entities[currentChannelId]?.name
+                  }`}
+                </strong>
                 <p>
                   {t('mainPage.messages.key', {
                     count: Object.values(messages.entities).filter(
-                      (m) => Number(m.channelId) === currentChannelId
+                      (m) => Number(m.channelId) === currentChannelId,
                     ).length,
                   })}
                 </p>
@@ -274,3 +277,5 @@ export const MainPage = ({
     </>
   );
 };
+
+export default MainPage;

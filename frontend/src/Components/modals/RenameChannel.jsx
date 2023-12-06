@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useFormik } from 'formik';
-import { Modal, FormGroup, FormControl, FormLabel } from 'react-bootstrap';
+import {
+  Modal, FormGroup, FormControl, FormLabel,
+} from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 // import socket from '../socket.js';
@@ -8,47 +10,47 @@ import io from 'socket.io-client';
 
 const socket = io();
 
-const generateOnSubmit =
-  (
-    { modalInfo, onHide, disableButtons, enableButtons, notify, filter, t },
-    channels
-  ) =>
-  (values) => {
-    disableButtons();
-    const newChannelName = filter.clean(values.body);
-    const channelToRename = { ...modalInfo.item, name: newChannelName };
-    if (
-      !Object.values(channels.entities).find(
-        ({ name }) => newChannelName === name
-      )
-    ) {
-      socket.emit('renameChannel', channelToRename, (response) => {
-        if (response && response.status === 'ok') {
-          // setToastMessage(
-          //   t('authForm.fetchingErrors.channelRenamingDelivered')
-          // );
-          console.log(t('authForm.fetchingErrors.channelRenamingDelivered'));
-          notify(t('authForm.fetchingErrors.channelRenamingDelivered'));
-          enableButtons();
-        } else {
-          // setToastMessage(
-          //   t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
-          // );
-          console.log(
-            t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
-          );
-          notify(t('authForm.fetchingErrors.channelRenamingDeliveryFailed'));
-          enableButtons();
-        }
-      });
-    } else {
-      // setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
-      console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
-      notify(t('authForm.fetchingErrors.channelAlreadyExists'));
-      enableButtons();
-    }
-    onHide();
-  };
+const generateOnSubmit = (
+  {
+    modalInfo, onHide, disableButtons, enableButtons, notify, filter, t,
+  },
+  channels,
+) => (values) => {
+  disableButtons();
+  const newChannelName = filter.clean(values.body);
+  const channelToRename = { ...modalInfo.item, name: newChannelName };
+  if (
+    !Object.values(channels.entities).find(
+      ({ name }) => newChannelName === name,
+    )
+  ) {
+    socket.emit('renameChannel', channelToRename, (response) => {
+      if (response && response.status === 'ok') {
+        // setToastMessage(
+        //   t('authForm.fetchingErrors.channelRenamingDelivered')
+        // );
+        console.log(t('authForm.fetchingErrors.channelRenamingDelivered'));
+        notify(t('authForm.fetchingErrors.channelRenamingDelivered'));
+        enableButtons();
+      } else {
+        // setToastMessage(
+        //   t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
+        // );
+        console.log(
+          t('authForm.fetchingErrors.channelRenamingDeliveryFailed'),
+        );
+        notify(t('authForm.fetchingErrors.channelRenamingDeliveryFailed'));
+        enableButtons();
+      }
+    });
+  } else {
+    // setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
+    console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
+    notify(t('authForm.fetchingErrors.channelAlreadyExists'));
+    enableButtons();
+  }
+  onHide();
+};
 
 const Rename = (props) => {
   const { onHide, modalInfo } = props;

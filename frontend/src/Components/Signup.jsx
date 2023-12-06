@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 
-export const Signup = ({ notify, toastContainer }) => {
+const Signup = ({ notify, toastContainer }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
@@ -33,7 +33,7 @@ export const Signup = ({ notify, toastContainer }) => {
     confirmPassword: Yup.string()
       .oneOf(
         [Yup.ref('password'), null],
-        t('authForm.validationErrors.confirmationFailed')
+        t('authForm.validationErrors.confirmationFailed'),
       )
       .required(t('authForm.validationErrors.confirmationRequired')),
   });
@@ -62,7 +62,7 @@ export const Signup = ({ notify, toastContainer }) => {
           switch (err.response.status) {
             case 409:
               setErrorMessage(
-                t('authForm.fetchingErrors.usernameAlreadyExists')
+                t('authForm.fetchingErrors.usernameAlreadyExists'),
               );
               notify(t('authForm.fetchingErrors.usernameAlreadyExists'));
               setAuthFailed(true);
@@ -70,10 +70,10 @@ export const Signup = ({ notify, toastContainer }) => {
               break;
             case 401:
               setErrorMessage(
-                t('authForm.fetchingErrors.usernameOrPasswordIncorrect')
+                t('authForm.fetchingErrors.usernameOrPasswordIncorrect'),
               );
               notify(
-                t('authForm.fetchingErrors.usernameOrPasswordIncorrectToast')
+                t('authForm.fetchingErrors.usernameOrPasswordIncorrectToast'),
               );
               setAuthFailed(true);
               inputRef.current.select();
@@ -167,12 +167,12 @@ export const Signup = ({ notify, toastContainer }) => {
                   isInvalid={authFailed}
                   required
                 />
-                {formik.touched.confirmPassword &&
-                formik.errors.confirmPassword ? (
+                {formik.touched.confirmPassword
+                && formik.errors.confirmPassword ? (
                   <div className="invalid-feedback d-block">
                     {formik.errors.confirmPassword}
                   </div>
-                ) : null}
+                  ) : null}
                 <Form.Control.Feedback type="invalid">
                   {errorMessage}
                 </Form.Control.Feedback>
@@ -203,3 +203,5 @@ export const Signup = ({ notify, toastContainer }) => {
     </div>
   );
 };
+
+export default Signup;

@@ -19,7 +19,7 @@ const messagesSlice = createSlice({
       const { id } = action.payload.channel;
       // console.log(id);
       const filteredEntries = Object.entries(state.entities).filter(
-        ([msgId, message]) => message.channelId !== id
+        ([msgId, message]) => message.channelId !== id,
       );
       console.log(filteredEntries);
       const filteredIds = filteredEntries.map(([msgId]) => msgId);

@@ -8,11 +8,11 @@ import {
 } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
+import io from 'socket.io-client';
+import { ToastContainer, toast } from 'react-toastify';
 import AuthContext from './contexts/index.jsx';
 import useAuth from './hooks/index.jsx';
-import io from 'socket.io-client';
 // import socket from './Components/socket.js';
-import { ToastContainer, toast } from 'react-toastify';
 
 import {
   addChannel,
@@ -21,11 +21,11 @@ import {
 } from './slices/channelsSlice.js';
 import { addMessage, removeMessages } from './slices/messagesSlice.js';
 
-import { Login } from './Components/Login';
-import { Signup } from './Components/Signup';
-import { Page404 } from './Components/Page404';
-import { MainPage } from './Components/MainPage';
-import { Navbar } from './Components/Navbar.jsx';
+import Login from './Components/Login';
+import Signup from './Components/Signup';
+import Page404 from './Components/Page404';
+import MainPage from './Components/MainPage';
+import Navbar from './Components/Navbar.jsx';
 
 const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -63,17 +63,16 @@ const App = () => {
   const [currentChannelId, setCurrentChannel] = useState(null);
   const logoutButtonRef = useRef(null);
 
-  const notify = (msg) =>
-    toast(msg, {
-      position: 'top-right',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'light',
-    });
+  const notify = (msg) => toast(msg, {
+    position: 'top-right',
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: 'light',
+  });
 
   const toastContainer = (
     <ToastContainer
@@ -129,11 +128,12 @@ const App = () => {
     }
   });
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       socket.disconnect();
-    };
-  }, []);
+    },
+    [],
+  );
 
   return (
     <AuthProvider>
@@ -143,7 +143,7 @@ const App = () => {
           <Routes>
             <Route
               path="/"
-              element={
+              element={(
                 <MainRoute>
                   <MainPage
                     setCurrentChannel={setCurrentChannel}
@@ -154,7 +154,7 @@ const App = () => {
                     logoutButtonRef={logoutButtonRef}
                   />
                 </MainRoute>
-              }
+              )}
             />
             <Route
               path="/login"

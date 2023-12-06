@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-export const Toast = ({ message, onClose }) => {
+const Toast = ({ message, onClose }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -25,9 +25,11 @@ export const Toast = ({ message, onClose }) => {
             data-bs-dismiss="toast"
             aria-label="Close"
             onClick={onClose}
-          ></button>
+          />
         </div>
       </div>
     </div>
   );
 };
+
+export default Toast;

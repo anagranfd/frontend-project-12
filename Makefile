@@ -1,6 +1,9 @@
 lint-frontend:
 	make -C frontend lint
 
+fix-frontend:
+	make -C frontend fix
+
 install:
 	npm ci
 
