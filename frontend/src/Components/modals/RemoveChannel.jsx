@@ -48,7 +48,7 @@ const Remove = (props) => {
           <FormGroup>
             <input
               type="submit"
-              className="btn btn-danger mt-2"
+              className="button btn-danger mt-2"
               value={t('modal.removeChannelSubmitButton')}
             />
           </FormGroup>
