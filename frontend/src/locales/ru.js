@@ -67,6 +67,7 @@ const ru = {
         key_few: '{{count}} сообщения',
         key_many: '{{count}} сообщений',
       },
+      newMessageLabel: 'Новое сообщение',
       newMessagePlaceholder: 'Введите сообщение...',
       newMessageButton: 'Отправить',
     },

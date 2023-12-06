@@ -239,6 +239,7 @@ export const MainPage = ({
                   <input
                     type="text"
                     className="form-control rounded-2 me-2"
+                    aria-label={t('mainPage.newMessageLabel')}
                     ref={messageInputRef}
                     placeholder={t('mainPage.newMessagePlaceholder')}
                   />
