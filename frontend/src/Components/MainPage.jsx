@@ -197,7 +197,6 @@ export const MainPage = ({
                     showModal('addChannel');
                   }
                 }}
-                // variant="group-vertical"
                 className="p-0 text-primary"
                 style={{
                   opacity: isChannelButtonDisabled ? 0.5 : 1,
@@ -216,6 +215,7 @@ export const MainPage = ({
               handleChannelClick={handleChannelClick}
               showModal={showModal}
               currentChannelId={currentChannelId}
+              t={t}
             />
           </div>
           <div className="col-9 d-flex flex-column flex-grow-1">

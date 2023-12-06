@@ -5,6 +5,7 @@ export const Channels = ({
   handleChannelClick,
   showModal,
   currentChannelId,
+  t,
 }) => {
   return (
     <ul className="nav flex-column nav-pills nav-fill mb-3 overflow-auto h-100 d-block">
@@ -55,7 +56,9 @@ export const Channels = ({
                     id={`dropdownButton-${id}`}
                     data-bs-reference="parent"
                   >
-                    <span className="visually-hidden">Menu</span>
+                    <span className="visually-hidden">
+                      {t('channelMenu.handleChannel')}
+                    </span>
                   </button>
 
                   <ul
@@ -68,8 +71,11 @@ export const Channels = ({
                         href="#remove"
                         onClick={() => showModal('removeChannel', ch)}
                       >
-                        Удалить канал
+                        {t('channelMenu.removeChannel')}
                       </a>
+                      <span className="visually-hidden">
+                        {t('channelMenu.removeChannelLabel')}
+                      </span>
                     </li>
                     <li>
                       <a
@@ -77,8 +83,11 @@ export const Channels = ({
                         href="#rename"
                         onClick={() => showModal('renameChannel', ch)}
                       >
-                        Переименовать канал
+                        {t('channelMenu.renameChannel')}
                       </a>
+                      <span className="visually-hidden">
+                        {t('channelMenu.renameChannelLabel')}
+                      </span>
                     </li>
                   </ul>
                 </div>

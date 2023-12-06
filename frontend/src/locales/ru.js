@@ -56,8 +56,11 @@ const ru = {
       renameChannelSubmitButton: 'Отправить',
     },
     channelMenu: {
-      renameChannel: 'Переименовать канал',
-      removeChannel: 'Удалить канал',
+      handleChannel: 'Управление каналом',
+      renameChannel: 'Переименовать',
+      renameChannelLabel: 'Переименовать',
+      removeChannel: 'Удалить',
+      removeChannelLabel: 'Удалить',
     },
     mainPage: {
       navTitle: 'Hexlet Chat',
