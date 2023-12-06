@@ -49,7 +49,7 @@ const ru = {
     modal: {
       addChannelTitle: 'Добавить канал',
       addChannelSubmitButton: 'Отправить',
-      addChannelSubmitButtonLabel: 'Имя канала',
+      addChannelInputLabel: 'Имя канала',
       removeChannelTitle: 'Удалить канал',
       removeChannelSubmitButton: 'Удалить',
       renameChannelTitle: 'Переименовать канал',
