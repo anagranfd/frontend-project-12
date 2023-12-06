@@ -191,24 +191,25 @@ export const MainPage = ({
           <div className="col-3 chat-sidebar">
             <div className="d-flex justify-content-between align-items-center mb-4 mt-3 w-100">
               <strong>{t('mainPage.channels')}</strong>
-              <img
-                src={PlusSquareIcon}
-                alt="+"
-                aria-label="+"
-                type="button"
+              <button
                 onClick={() => {
                   if (!isChannelButtonDisabled) {
                     showModal('addChannel');
                   }
                 }}
-                width="24"
-                height="24"
-                className="ms-2 text-success"
+                // variant="group-vertical"
+                className="p-0 text-primary"
                 style={{
                   opacity: isChannelButtonDisabled ? 0.5 : 1,
+                  border: 'none',
+                  background: 'none',
                 }}
+                disabled={isChannelButtonDisabled}
                 ref={addChannelButtonRef}
-              />
+              >
+                <img src={PlusSquareIcon} alt="+" width="24" height="24" />
+                <span className="visually-hidden">+</span>
+              </button>
             </div>
             <Channels
               channels={channels.entities}
