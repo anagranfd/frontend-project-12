@@ -57,7 +57,9 @@ export const Login = ({ notify, toastContainer }) => {
               setErrorMessage(
                 t('authForm.fetchingErrors.usernameOrPasswordIncorrect')
               );
-              notify(t('authForm.fetchingErrors.usernameOrPasswordIncorrect'));
+              notify(
+                t('authForm.fetchingErrors.usernameOrPasswordIncorrectToast')
+              );
               setAuthFailed(true);
               inputRef.current.select();
               break;

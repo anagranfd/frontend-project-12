@@ -30,6 +30,7 @@ const ru = {
         channelAlreadyExists: 'Канал с таким именем уже существует',
         usernameAlreadyExists: 'Пользователь с таким именем уже существует',
         usernameOrPasswordIncorrect: 'Неверные имя пользователя или пароль',
+        usernameOrPasswordIncorrectToast: 'Ошибка авторизации',
         networkError: 'Ошибка соединения',
         errorOccurred: 'Произошла ошибка',
         unknownError: 'Произошла неизвестная ошибка',
