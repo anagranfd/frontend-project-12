@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useFormik } from 'formik';
-import { Modal, FormGroup, FormControl } from 'react-bootstrap';
+import { Modal, FormGroup, FormControl, FormLabel } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 // import socket from '../socket.js';
@@ -74,6 +74,9 @@ const Rename = (props) => {
       <Modal.Body>
         <form onSubmit={f.handleSubmit}>
           <FormGroup>
+            <FormLabel htmlFor="body" className="visually-hidden">
+              {t('modal.addChannelInputLabel')}
+            </FormLabel>
             <FormControl
               required
               ref={inputRef}
@@ -82,6 +85,7 @@ const Rename = (props) => {
               value={f.values.body}
               data-testid="input-body"
               name="body"
+              id="body"
             />
           </FormGroup>
           <input
