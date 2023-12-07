@@ -3,7 +3,7 @@ import React from 'react';
 const Messages = ({ messages, currentChannelId }) => (
   <div className="card-body chat-messages">
     {Object.entries(messages)
-      .filter(([id, m]) => m.channelId === currentChannelId)
+      .filter(([, m]) => m.channelId === currentChannelId)
       .map(([id, m]) => (
         <p key={id}>
           <strong>{`${m.username}:`}</strong>

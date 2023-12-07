@@ -6,13 +6,20 @@ import {
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 // import socket from '../socket.js';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
-const socket = io();
+// const socket = io();
 
 const generateOnSubmit = (
   {
-    modalInfo, onHide, disableButtons, enableButtons, notify, filter, t,
+    modalInfo,
+    onHide,
+    disableButtons,
+    enableButtons,
+    notify,
+    filter,
+    socket,
+    t,
   },
   channels,
 ) => (values) => {
@@ -24,7 +31,7 @@ const generateOnSubmit = (
       ({ name }) => newChannelName === name,
     )
   ) {
-    socket.emit('renameChannel', channelToRename, (response) => {
+    socket.current.emit('renameChannel', channelToRename, (response) => {
       if (response && response.status === 'ok') {
         // setToastMessage(
         //   t('authForm.fetchingErrors.channelRenamingDelivered')

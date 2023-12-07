@@ -36,7 +36,7 @@ const MainPage = ({
   socket,
   notify,
   toastContainer,
-  logoutButtonRef,
+  setisLogoutButtonDisabled,
 }) => {
   const { t } = useTranslation();
   // const [items, setItems] = useImmer([]);
@@ -74,14 +74,15 @@ const MainPage = ({
     submitButtonRef.current.disabled = true;
     // addChannelButtonRef.current.disabled = true;
     setIsChannelButtonDisabled(true);
-    logoutButtonRef.current.disabled = true;
+    setisLogoutButtonDisabled(true);
   };
 
   const enableButtons = () => {
     submitButtonRef.current.disabled = false;
     // addChannelButtonRef.current.disabled = false;
     setIsChannelButtonDisabled(false);
-    logoutButtonRef.current.disabled = false;
+    setisLogoutButtonDisabled(false);
+    // logoutButtonRef.current.disabled = false;
   };
 
   useEffect(() => {
@@ -90,15 +91,18 @@ const MainPage = ({
         const response = await axios.get(routes.dataPath(), {
           headers: getAuthHeader(),
         });
-        const { channels, messages, currentChannelId } = response.data;
-        channels.forEach((ch) => {
+        // const { channels, messages, currentChannelId } = response.data;
+        const responseChannels = response.data.channels;
+        const responseMessages = response.data.messages;
+        const responseCurrentChannelId = response.data.currentChannelId;
+        responseChannels.forEach((ch) => {
           dispatch(addChannel({ channel: ch }));
         });
-        messages.forEach((m) => {
+        responseMessages.forEach((m) => {
           dispatch(addMessage({ message: m }));
         });
-        console.log(currentChannelId);
-        setCurrentChannel(currentChannelId);
+        console.log(responseCurrentChannelId);
+        setCurrentChannel(responseCurrentChannelId);
         // setData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -106,7 +110,7 @@ const MainPage = ({
     };
 
     fetchContent();
-  }, []);
+  }, [dispatch, setCurrentChannel]);
 
   const handleChannelClick = (channel) => {
     setCurrentChannel(channel.id);
@@ -126,7 +130,7 @@ const MainPage = ({
       username,
     };
 
-    socket.emit('newMessage', newMessage, (response) => {
+    socket.current.emit('newMessage', newMessage, (response) => {
       if (response && response.status === 'ok') {
         // setToastMessage(t('authForm.fetchingErrors.newMessageDelivered'));
         console.log(t('authForm.fetchingErrors.newMessageDelivered'));
@@ -144,28 +148,30 @@ const MainPage = ({
   };
 
   const renderModal = ({
-    modalInfo,
-    hideModal,
-    disableButtons,
-    enableButtons,
-    setToastMessage,
-    notify,
-    filter,
+    modalInfoRender,
+    hideModalRender,
+    disableButtonsRender,
+    enableButtonsRender,
+    // setToastMessage,
+    notifyRender,
+    filterRender,
+    socketRender,
   }) => {
-    if (!modalInfo.type) {
+    if (!modalInfoRender.type) {
       return null;
     }
 
-    const Component = getModal(modalInfo.type);
+    const Component = getModal(modalInfoRender.type);
     return (
       <Component
-        modalInfo={modalInfo}
-        onHide={hideModal}
-        disableButtons={disableButtons}
-        enableButtons={enableButtons}
-        setToastMessage={setToastMessage}
-        notify={notify}
-        filter={filter}
+        modalInfo={modalInfoRender}
+        onHide={hideModalRender}
+        disableButtons={disableButtonsRender}
+        enableButtons={enableButtonsRender}
+        // setToastMessage={setToastMessage}
+        notify={notifyRender}
+        filter={filterRender}
+        socket={socketRender}
       />
     );
   };
@@ -192,6 +198,7 @@ const MainPage = ({
             <div className="d-flex justify-content-between align-items-center mb-4 mt-3 w-100">
               <strong>{t('mainPage.channels')}</strong>
               <button
+                type="button"
                 onClick={() => {
                   if (!isChannelButtonDisabled) {
                     showModal('addChannel');
@@ -264,13 +271,13 @@ const MainPage = ({
         </div>
       </div>
       {renderModal({
-        modalInfo,
-        hideModal,
-        disableButtons,
-        enableButtons,
-        // setToastMessage,
-        notify,
-        filter,
+        modalInfoRender: modalInfo,
+        hideModalRender: hideModal,
+        disableButtonsRender: disableButtons,
+        enableButtonsRender: enableButtons,
+        notifyRender: notify,
+        filterRender: filter,
+        socketRender: socket,
       })}
       {toastContainer}
       {/* {toastMessage && <Toast message={toastMessage} onClose={closeToast} />} */}

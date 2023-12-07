@@ -2,18 +2,18 @@ import React from 'react';
 import { Modal, FormGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 // import socket from '../socket.js';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
-const socket = io();
+// const socket = io();
 
 const generateOnSubmit = ({
-  modalInfo, onHide, disableButtons, enableButtons, notify, t,
+  modalInfo, onHide, disableButtons, enableButtons, notify, socket, t,
 }) => (e) => {
   e.preventDefault();
   console.log(modalInfo);
   disableButtons();
   const channelIdToRemove = modalInfo.item;
-  socket.emit('removeChannel', channelIdToRemove, (response) => {
+  socket.current.emit('removeChannel', channelIdToRemove, (response) => {
     if (response && response.status === 'ok') {
       // setToastMessage(t('authForm.fetchingErrors.channelRemovingDelivered'));
       console.log(t('authForm.fetchingErrors.channelRemovingDelivered'));

@@ -6,13 +6,16 @@ import {
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 // import socket from '../socket.js';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
-const socket = io();
+// const socket = io();
 
-const generateOnSubmit = ({
-  onHide, disableButtons, enableButtons, notify, filter, t,
-}, channels) => (values) => {
+const generateOnSubmit = (
+  {
+    onHide, disableButtons, enableButtons, notify, filter, socket, t,
+  },
+  channels,
+) => (values) => {
   disableButtons();
   const newChannel = { name: filter.clean(values.body) };
   console.log(newChannel);
@@ -22,7 +25,7 @@ const generateOnSubmit = ({
       ({ name }) => newChannel.name === name,
     )
   ) {
-    socket.emit('newChannel', newChannel, (response) => {
+    socket.current.emit('newChannel', newChannel, (response) => {
       if (response && response.status === 'ok') {
         // setToastMessage(t('authForm.fetchingErrors.newChannelDelivered'));
         console.log(t('authForm.fetchingErrors.newChannelDelivered'));

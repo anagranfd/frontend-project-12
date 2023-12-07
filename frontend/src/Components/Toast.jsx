@@ -7,7 +7,7 @@ const Toast = ({ message, onClose }) => {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [onClose]);
 
   return (
     <div className="toast-container position-absolute top-0 end-0 p-3 pt-5">

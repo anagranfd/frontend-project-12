@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef, useMemo,
+} from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -36,10 +38,19 @@ const AuthProvider = ({ children }) => {
     setLoggedIn(false);
   };
 
+  // Используем useMemo для создания объекта, который не будет
+  // пересоздаваться на каждом рендере
+  const authValue = useMemo(
+    () => ({
+      loggedIn,
+      logIn,
+      logOut,
+    }),
+    [loggedIn],
+  );
+
   return (
-    <AuthContext.Provider value={{ loggedIn, logIn, logOut }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
   );
 };
 
@@ -61,7 +72,8 @@ const App = () => {
   // const messages = useSelector((state) => state.messages);
 
   const [currentChannelId, setCurrentChannel] = useState(null);
-  const logoutButtonRef = useRef(null);
+  const [isLogoutButtonDisabled, setisLogoutButtonDisabled] = useState(false);
+  // const logoutButtonRef = useRef(null);
 
   const notify = (msg) => toast(msg, {
     position: 'top-right',
@@ -89,56 +101,58 @@ const App = () => {
     />
   );
 
-  const socket = io();
+  const socketRef = useRef(null);
 
-  socket.on('connect_error', () => {
-    console.log('Произошла ошибка соединения с сервером.');
-    setTimeout(() => {
-      socket.connect();
-    }, 1000);
+  useEffect(() => {
+    socketRef.current = io();
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    socketRef.current.on('connect_error', () => {
+      console.log('Произошла ошибка соединения с сервером.');
+      setTimeout(() => {
+        socketRef.current.connect();
+      }, 1000);
+    });
+
+    socketRef.current.on('newMessage', (message) => {
+      dispatch(addMessage({ message }));
+    });
+
+    socketRef.current.on('newChannel', (channel) => {
+      dispatch(addChannel({ channel }));
+      setCurrentChannel(channel.id);
+    });
+
+    socketRef.current.on('renameChannel', (channel) => {
+      dispatch(renameChannel({ channel }));
+    });
+
+    socketRef.current.on('removeChannel', (channel) => {
+      // console.log(channel.id);
+      // console.log(currentChannelId);
+      // setCurrentChannel(
+      //   currentChannelId === channel.id ? channels.ids[0] : currentChannelId
+      // );
+      setCurrentChannel(channels.ids[0]);
+      dispatch(removeMessages({ channel }));
+      dispatch(removeChannel({ channel }));
+    });
+
+    // socketRef.current.on('disconnect', (reason) => {
+    //   if (reason === 'io server disconnect') {
+    //     socketRef.current.connect();
+    //   }
+    // });
   });
-
-  socket.on('newMessage', (message) => {
-    dispatch(addMessage({ message }));
-  });
-
-  socket.on('newChannel', (channel) => {
-    dispatch(addChannel({ channel }));
-    setCurrentChannel(channel.id);
-  });
-
-  socket.on('renameChannel', (channel) => {
-    dispatch(renameChannel({ channel }));
-  });
-
-  socket.on('removeChannel', (channel) => {
-    // console.log(channel.id);
-    // console.log(currentChannelId);
-    // setCurrentChannel(
-    //   currentChannelId === channel.id ? channels.ids[0] : currentChannelId
-    // );
-    setCurrentChannel(channels.ids[0]);
-    dispatch(removeMessages({ channel }));
-    dispatch(removeChannel({ channel }));
-  });
-
-  socket.on('disconnect', (reason) => {
-    if (reason === 'io server disconnect') {
-      socket.connect();
-    }
-  });
-
-  useEffect(
-    () => () => {
-      socket.disconnect();
-    },
-    [],
-  );
 
   return (
     <AuthProvider>
       <Router>
-        <Navbar logoutButtonRef={logoutButtonRef} socket={socket} />
+        <Navbar isLogoutButtonDisabled={isLogoutButtonDisabled} />
         <div className="container">
           <Routes>
             <Route
@@ -148,10 +162,10 @@ const App = () => {
                   <MainPage
                     setCurrentChannel={setCurrentChannel}
                     currentChannelId={currentChannelId}
-                    socket={socket}
+                    socket={socketRef}
                     notify={notify}
                     toastContainer={toastContainer}
-                    logoutButtonRef={logoutButtonRef}
+                    setisLogoutButtonDisabled={setisLogoutButtonDisabled}
                   />
                 </MainRoute>
               )}

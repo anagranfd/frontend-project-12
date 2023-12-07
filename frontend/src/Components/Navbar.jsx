@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes';
 
-const Navbar = ({ logoutButtonRef, socket }) => {
+const Navbar = ({ isLogoutButtonDisabled }) => {
   const auth = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
-    socket.disconnect();
+    // socket.current.disconnect();
     navigate(routes.loginPagePath());
   };
 
@@ -29,7 +29,7 @@ const Navbar = ({ logoutButtonRef, socket }) => {
               }}
               className="btn btn-primary"
               type="button"
-              ref={logoutButtonRef}
+              disabled={isLogoutButtonDisabled}
             >
               {t('mainPage.logoutButton')}
             </button>
