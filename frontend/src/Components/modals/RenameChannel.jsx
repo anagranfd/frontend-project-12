@@ -3,8 +3,10 @@ import { useFormik } from 'formik';
 import {
   Modal, FormGroup, FormControl, FormLabel,
 } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import * as Yup from 'yup';
+import { hideModal } from '../../slices/modalSlice.js';
 // import socket from '../socket.js';
 // import io from 'socket.io-client';
 
@@ -13,12 +15,13 @@ import { useTranslation } from 'react-i18next';
 const generateOnSubmit = (
   {
     modalInfo,
-    onHide,
     disableButtons,
     enableButtons,
     notify,
     filter,
     socket,
+    // channelToRename,
+    onHide,
     t,
   },
   channels,
@@ -31,18 +34,12 @@ const generateOnSubmit = (
       ({ name }) => newChannelName === name,
     )
   ) {
-    socket.current.emit('renameChannel', channelToRename, (response) => {
+    socket.emit('renameChannel', channelToRename, (response) => {
       if (response && response.status === 'ok') {
-        // setToastMessage(
-        //   t('authForm.fetchingErrors.channelRenamingDelivered')
-        // );
         console.log(t('authForm.fetchingErrors.channelRenamingDelivered'));
         notify(t('authForm.fetchingErrors.channelRenamingDelivered'));
         enableButtons();
       } else {
-        // setToastMessage(
-        //   t('authForm.fetchingErrors.channelRenamingDeliveryFailed')
-        // );
         console.log(
           t('authForm.fetchingErrors.channelRenamingDeliveryFailed'),
         );
@@ -51,7 +48,6 @@ const generateOnSubmit = (
       }
     });
   } else {
-    // setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
     console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
     notify(t('authForm.fetchingErrors.channelAlreadyExists'));
     enableButtons();
@@ -60,14 +56,30 @@ const generateOnSubmit = (
 };
 
 const Rename = (props) => {
-  const { onHide, modalInfo } = props;
+  const { modalInfo, focusMessageInput } = props;
+  const dispatch = useDispatch();
+  // const channelToRename = useSelector((state) => state.modal.item);
+  const onHide = () => {
+    dispatch(hideModal());
+    focusMessageInput();
+  };
   const { t } = useTranslation();
   const { item } = modalInfo;
   const channels = useSelector((state) => state.channels);
 
-  const f = useFormik({
-    onSubmit: generateOnSubmit({ ...props, t }, channels),
+  const RenameChannelSchema = Yup.object().shape({
+    body: Yup.string()
+      .min(3, t('authForm.validationErrors.usernameLettersMin'))
+      .max(20, t('authForm.validationErrors.usernameLettersMax'))
+      .required(t('authForm.validationErrors.requiredField')),
+  });
+
+  const formik = useFormik({
     initialValues: item,
+    validationSchema: RenameChannelSchema,
+    onSubmit: generateOnSubmit({ ...props, onHide, t }, channels),
+    validateOnBlur: false,
+    validateOnChange: false,
   });
   const inputRef = useRef();
   useEffect(() => {
@@ -81,7 +93,7 @@ const Rename = (props) => {
       </Modal.Header>
 
       <Modal.Body>
-        <form onSubmit={f.handleSubmit}>
+        <form onSubmit={formik.handleSubmit}>
           <FormGroup>
             <FormLabel htmlFor="body" className="visually-hidden">
               {t('modal.addChannelInputLabel')}
@@ -89,13 +101,17 @@ const Rename = (props) => {
             <FormControl
               required
               ref={inputRef}
-              onChange={f.handleChange}
-              onBlur={f.handleBlur}
-              value={f.values.body}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.body}
               data-testid="input-body"
               name="body"
               id="body"
+              isInvalid={formik.touched.body && !!formik.errors.body}
             />
+            <FormControl.Feedback type="invalid">
+              {formik.errors.body}
+            </FormControl.Feedback>
           </FormGroup>
           <input
             type="submit"

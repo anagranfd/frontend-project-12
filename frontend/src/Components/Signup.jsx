@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 
-const Signup = ({ notify, toastContainer }) => {
+const Signup = ({ notify }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
@@ -199,7 +199,6 @@ const Signup = ({ notify, toastContainer }) => {
           </Form>
         </div>
       </div>
-      {toastContainer}
     </div>
   );
 };

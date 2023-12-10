@@ -1,6 +1,4 @@
-import React, {
-  useState, useEffect, useRef, useMemo,
-} from 'react';
+import React, { useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,51 +6,29 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+// import { useSelector, useDispatch } from 'react-redux';
 
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
-import AuthContext from './contexts/index.jsx';
 import useAuth from './hooks/index.jsx';
+import AuthProvider from './Components/providers/AuthProvider.jsx';
+import SocketProvider from './Components/providers/SocketProvider.jsx';
+// import { SocketContext } from './contexts/index.jsx';
 // import socket from './Components/socket.js';
 
-import {
-  addChannel,
-  removeChannel,
-  renameChannel,
-} from './slices/channelsSlice.js';
-import { addMessage, removeMessages } from './slices/messagesSlice.js';
+// import {
+//   addChannel,
+//   setCurrentChannel,
+//   removeChannel,
+//   renameChannel,
+// } from './slices/channelsSlice.js';
+// import { addMessage, removeMessages } from './slices/messagesSlice.js';
 
 import Login from './Components/Login';
 import Signup from './Components/Signup';
 import Page404 from './Components/Page404';
 import MainPage from './Components/MainPage';
 import Navbar from './Components/Navbar.jsx';
-
-const AuthProvider = ({ children }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  const logIn = () => setLoggedIn(true);
-  const logOut = () => {
-    localStorage.removeItem('userId');
-    setLoggedIn(false);
-  };
-
-  // Используем useMemo для создания объекта, который не будет
-  // пересоздаваться на каждом рендере
-  const authValue = useMemo(
-    () => ({
-      loggedIn,
-      logIn,
-      logOut,
-    }),
-    [loggedIn],
-  );
-
-  return (
-    <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
-  );
-};
 
 const MainRoute = ({ children }) => {
   const auth = useAuth();
@@ -67,11 +43,12 @@ const MainRoute = ({ children }) => {
 };
 
 const App = () => {
-  const dispatch = useDispatch();
-  const channels = useSelector((state) => state.channels);
+  // const dispatch = useDispatch();
+  // const channels = useSelector((state) => state.channels);
+  // const currentChannelId = useSelector((state) => state.currentChannelId);
   // const messages = useSelector((state) => state.messages);
 
-  const [currentChannelId, setCurrentChannel] = useState(null);
+  // const [currentChannelId, setCurrentChannel] = useState(null);
   const [isLogoutButtonDisabled, setisLogoutButtonDisabled] = useState(false);
   // const logoutButtonRef = useRef(null);
 
@@ -101,91 +78,97 @@ const App = () => {
     />
   );
 
-  const socketRef = useRef(null);
+  // const socketRef = useRef(null);
 
-  useEffect(() => {
-    socketRef.current = io();
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, []);
+  // useEffect(() => {
+  //   socket = io();
+  //   return () => {
+  //     sessionStorage.removeItem('currentChannelId');
+  //     socket.disconnect();
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    socketRef.current.on('connect_error', () => {
-      console.log('Произошла ошибка соединения с сервером.');
-      setTimeout(() => {
-        socketRef.current.connect();
-      }, 1000);
-    });
+  // const socket = useContext(SocketContext);
 
-    socketRef.current.on('newMessage', (message) => {
-      dispatch(addMessage({ message }));
-    });
+  // useEffect(() => {
+  //   socket.on('connect_error', () => {
+  //     console.log('Произошла ошибка соединения с сервером.');
+  //     setTimeout(() => {
+  //       socket.connect();
+  //     }, 1000);
+  //   });
 
-    socketRef.current.on('newChannel', (channel) => {
-      dispatch(addChannel({ channel }));
-      setCurrentChannel(channel.id);
-    });
+  //   socket.on('newMessage', (message) => {
+  //     dispatch(addMessage({ message }));
+  //   });
 
-    socketRef.current.on('renameChannel', (channel) => {
-      dispatch(renameChannel({ channel }));
-    });
+  //   socket.on('newChannel', (channel) => {
+  //     dispatch(addChannel({ channel }));
+  //     if (sessionStorage.getItem('currentChannelId')) {
+  //       dispatch(
+  //         setCurrentChannel({
+  //           channelId:
+  //             Number(sessionStorage.getItem('currentChannelId')) ??
+  //             currentChannelId,
+  //         })
+  //       );
+  //     }
+  //   });
 
-    socketRef.current.on('removeChannel', (channel) => {
-      // console.log(channel.id);
-      // console.log(currentChannelId);
-      // setCurrentChannel(
-      //   currentChannelId === channel.id ? channels.ids[0] : currentChannelId
-      // );
-      setCurrentChannel(channels.ids[0]);
-      dispatch(removeMessages({ channel }));
-      dispatch(removeChannel({ channel }));
-    });
+  //   socket.on('renameChannel', (channel) => {
+  //     dispatch(renameChannel({ channel }));
+  //   });
 
-    // socketRef.current.on('disconnect', (reason) => {
-    //   if (reason === 'io server disconnect') {
-    //     socketRef.current.connect();
-    //   }
-    // });
-  });
+  //   socket.on('removeChannel', (channel) => {
+  //     dispatch(setCurrentChannel({ channelId: channels.ids[0] }));
+  //     dispatch(removeMessages({ channel }));
+  //     dispatch(removeChannel({ channel }));
+  //   });
+
+  //   // socket.on('disconnect', (reason) => {
+  //   //   if (reason === 'io server disconnect') {
+  //   //     socket.connect();
+  //   //   }
+  //   // });
+  // });
 
   return (
     <AuthProvider>
-      <Router>
-        <Navbar isLogoutButtonDisabled={isLogoutButtonDisabled} />
-        <div className="container">
-          <Routes>
-            <Route
-              path="/"
-              element={(
-                <MainRoute>
-                  <MainPage
-                    setCurrentChannel={setCurrentChannel}
-                    currentChannelId={currentChannelId}
-                    socket={socketRef}
-                    notify={notify}
-                    toastContainer={toastContainer}
-                    setisLogoutButtonDisabled={setisLogoutButtonDisabled}
-                  />
-                </MainRoute>
-              )}
-            />
-            <Route
-              path="/login"
-              element={
-                <Login notify={notify} toastContainer={toastContainer} />
-              }
-            />
-            <Route
-              path="/signup"
-              element={
-                <Signup notify={notify} toastContainer={toastContainer} />
-              }
-            />
-            <Route path="*" element={<Page404 />} />
-          </Routes>
-        </div>
-      </Router>
+      {toastContainer}
+      <SocketProvider>
+        <Router>
+          <Navbar isLogoutButtonDisabled={isLogoutButtonDisabled} />
+          <div className="container">
+            <Routes>
+              <Route
+                path="/"
+                element={(
+                  <MainRoute>
+                    <MainPage
+                      // socket={socket}
+                      notify={notify}
+                      setisLogoutButtonDisabled={setisLogoutButtonDisabled}
+                    />
+                  </MainRoute>
+                )}
+              />
+              <Route
+                path="/login"
+                element={
+                  <Login notify={notify} toastContainer={toastContainer} />
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <Signup notify={notify} toastContainer={toastContainer} />
+                }
+              />
+              <Route path="*" element={<Page404 />} />
+            </Routes>
+          </div>
+        </Router>
+      </SocketProvider>
     </AuthProvider>
   );
 };

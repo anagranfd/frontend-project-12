@@ -51,6 +51,7 @@ const ru = {
       addChannelSubmitButton: 'Отправить',
       addChannelInputLabel: 'Имя канала',
       removeChannelTitle: 'Удалить канал',
+      removeChannelText: 'Уверены?',
       removeChannelSubmitButton: 'Удалить',
       renameChannelTitle: 'Переименовать канал',
       renameChannelSubmitButton: 'Отправить',

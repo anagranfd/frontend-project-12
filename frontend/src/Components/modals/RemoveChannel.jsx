@@ -1,41 +1,50 @@
 import React from 'react';
 import { Modal, FormGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+import { hideModal } from '../../slices/modalSlice.js';
 // import socket from '../socket.js';
 // import io from 'socket.io-client';
 
 // const socket = io();
 
 const generateOnSubmit = ({
-  modalInfo, onHide, disableButtons, enableButtons, notify, socket, t,
+  modalInfo,
+  disableButtons,
+  enableButtons,
+  notify,
+  socket,
+  // channelIdToRemove,
+  onHide,
+  t,
 }) => (e) => {
   e.preventDefault();
-  console.log(modalInfo);
   disableButtons();
   const channelIdToRemove = modalInfo.item;
-  socket.current.emit('removeChannel', channelIdToRemove, (response) => {
+  socket.emit('removeChannel', channelIdToRemove, (response) => {
     if (response && response.status === 'ok') {
-      // setToastMessage(t('authForm.fetchingErrors.channelRemovingDelivered'));
       console.log(t('authForm.fetchingErrors.channelRemovingDelivered'));
       notify(t('authForm.fetchingErrors.channelRemovingDelivered'));
       enableButtons();
     } else {
-      // setToastMessage(
-      //   t('authForm.fetchingErrors.channelRemovingDeliveryFailed')
-      // );
       console.log(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
       notify(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
       enableButtons();
     }
   });
-  // console.log(messages);
   onHide();
 };
 
 const Remove = (props) => {
-  const { onHide } = props;
+  const { focusMessageInput } = props;
+  const dispatch = useDispatch();
+  // const channelIdToRemove = useSelector((state) => state.modal.item.id);
+  const onHide = () => {
+    dispatch(hideModal());
+    focusMessageInput();
+  };
   const { t } = useTranslation();
-  const onSubmit = generateOnSubmit({ ...props, t });
+  const onSubmit = generateOnSubmit({ ...props, onHide, t });
 
   return (
     <Modal show>
@@ -44,13 +53,9 @@ const Remove = (props) => {
       </Modal.Header>
 
       <Modal.Body>
+        <h5>{t('modal.removeChannelText')}</h5>
         <form onSubmit={onSubmit}>
           <FormGroup>
-            {/* <input
-              type="submit"
-              className="btn btn-danger mt-2"
-              value={t('modal.removeChannelSubmitButton')}
-            /> */}
             <button type="submit" className="btn btn-danger mt-2">
               {t('modal.removeChannelSubmitButton')}
             </button>

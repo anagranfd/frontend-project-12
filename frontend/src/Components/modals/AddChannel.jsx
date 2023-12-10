@@ -1,18 +1,22 @@
 import React, { useEffect, useRef } from 'react';
 import { useFormik } from 'formik';
 import {
-  Modal, FormGroup, FormControl, FormLabel,
+  Modal,
+  Form,
+  FormGroup,
+  FormControl,
+  FormLabel,
 } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import * as Yup from 'yup';
+import { hideModal } from '../../slices/modalSlice.js';
 // import socket from '../socket.js';
 // import io from 'socket.io-client';
 
-// const socket = io();
-
 const generateOnSubmit = (
   {
-    onHide, disableButtons, enableButtons, notify, filter, socket, t,
+    disableButtons, enableButtons, notify, filter, socket, onHide, t,
   },
   channels,
 ) => (values) => {
@@ -25,23 +29,19 @@ const generateOnSubmit = (
       ({ name }) => newChannel.name === name,
     )
   ) {
-    socket.current.emit('newChannel', newChannel, (response) => {
+    socket.emit('newChannel', newChannel, (response) => {
       if (response && response.status === 'ok') {
-        // setToastMessage(t('authForm.fetchingErrors.newChannelDelivered'));
         console.log(t('authForm.fetchingErrors.newChannelDelivered'));
         notify(t('authForm.fetchingErrors.newChannelDelivered'));
+        sessionStorage.setItem('currentChannelId', response.data.id);
         enableButtons();
       } else {
-        // setToastMessage(
-        //   t('authForm.fetchingErrors.newChannelDeliveryFailed')
-        // );
         console.log(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
         notify(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
         enableButtons();
       }
     });
   } else {
-    // setToastMessage(t('authForm.fetchingErrors.channelAlreadyExists'));
     console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
     notify(t('authForm.fetchingErrors.channelAlreadyExists'));
     enableButtons();
@@ -50,19 +50,34 @@ const generateOnSubmit = (
 };
 
 const AddChannel = (props) => {
-  const { onHide } = props;
+  const { focusMessageInput } = props;
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const onHide = () => {
+    dispatch(hideModal());
+    focusMessageInput();
+  };
   const channels = useSelector((state) => state.channels);
   console.log(channels);
 
-  const f = useFormik({
-    onSubmit: generateOnSubmit({ ...props, t }, channels),
+  const NewChannelSchema = Yup.object().shape({
+    body: Yup.string()
+      .min(3, t('authForm.validationErrors.usernameLettersMin'))
+      .max(20, t('authForm.validationErrors.usernameLettersMax'))
+      .required(t('authForm.validationErrors.requiredField')),
+  });
+
+  const formik = useFormik({
     initialValues: { body: '' },
+    validationSchema: NewChannelSchema,
+    onSubmit: generateOnSubmit({ ...props, onHide, t }, channels),
+    validateOnBlur: false,
+    validateOnChange: false,
   });
 
   const inputRef = useRef();
   useEffect(() => {
-    inputRef.current.focus();
+    inputRef.current.select();
   }, []);
 
   return (
@@ -72,7 +87,7 @@ const AddChannel = (props) => {
       </Modal.Header>
 
       <Modal.Body>
-        <form onSubmit={f.handleSubmit}>
+        <Form onSubmit={formik.handleSubmit}>
           <FormGroup>
             <FormLabel htmlFor="body" className="visually-hidden">
               {t('modal.addChannelInputLabel')}
@@ -80,20 +95,24 @@ const AddChannel = (props) => {
             <FormControl
               required
               ref={inputRef}
-              onChange={f.handleChange}
-              onBlur={f.handleBlur}
-              value={f.values.body}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.body}
               data-testid="input-body"
               name="body"
               id="body"
+              isInvalid={formik.touched.body && !!formik.errors.body}
             />
+            <FormControl.Feedback type="invalid">
+              {formik.errors.body}
+            </FormControl.Feedback>
           </FormGroup>
           <input
             type="submit"
             className="btn btn-primary mt-2"
             value={t('modal.addChannelSubmitButton')}
           />
-        </form>
+        </Form>
       </Modal.Body>
     </Modal>
   );
