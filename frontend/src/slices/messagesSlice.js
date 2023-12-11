@@ -33,6 +33,6 @@ const messagesSlice = createSlice({
   },
 });
 
-export const { actionsMessages } = messagesSlice;
+export const actionsMessages = messagesSlice.actions;
 
 export default messagesSlice.reducer;

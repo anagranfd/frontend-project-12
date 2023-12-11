@@ -7,10 +7,11 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import io from 'socket.io-client';
 import useAuth from './hooks/index.jsx';
 import AuthProvider from './Components/providers/AuthProvider.jsx';
 import SocketProvider from './Components/providers/SocketProvider.jsx';
-import { SocketContext } from './contexts/index.jsx';
+// import { SocketContext } from './contexts/index.jsx';
 import store from './slices/index.js';
 import { actionsMessages } from './slices/messagesSlice.js';
 import { actionsChannels } from './slices/channelsSlice.js';
@@ -59,9 +60,11 @@ const App = () => {
     />
   );
 
-  const socket = useContext(SocketContext);
+  // const socket = useContext(SocketContext);
 
   useEffect(() => {
+    const socket = io();
+
     socket.on('connect_error', () => {
       console.log('Произошла ошибка соединения с сервером.');
       setTimeout(() => {
@@ -96,7 +99,6 @@ const App = () => {
                 element={(
                   <MainRoute>
                     <MainPage
-                      // socket={socket}
                       notify={notify}
                       setisLogoutButtonDisabled={setisLogoutButtonDisabled}
                     />
