@@ -10,9 +10,7 @@ const Navbar = ({ isLogoutButtonDisabled }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // localStorage.removeItem('userId');
     auth.logOut();
-    // socket.current.disconnect();
     navigate(routes.loginPagePath());
   };
 

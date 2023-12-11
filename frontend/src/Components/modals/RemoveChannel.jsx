@@ -1,22 +1,11 @@
 import React from 'react';
 import { Modal, FormGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
-import { hideModal } from '../../slices/modalSlice.js';
-// import socket from '../socket.js';
-// import io from 'socket.io-client';
-
-// const socket = io();
+import { actionsModal } from '../../slices/modalSlice.js';
+import store from '../../slices/index.js';
 
 const generateOnSubmit = ({
-  modalInfo,
-  disableButtons,
-  enableButtons,
-  notify,
-  socket,
-  // channelIdToRemove,
-  onHide,
-  t,
+  modalInfo, disableButtons, enableButtons, notify, socket, onHide, t,
 }) => (e) => {
   e.preventDefault();
   disableButtons();
@@ -37,10 +26,8 @@ const generateOnSubmit = ({
 
 const Remove = (props) => {
   const { focusMessageInput } = props;
-  const dispatch = useDispatch();
-  // const channelIdToRemove = useSelector((state) => state.modal.item.id);
   const onHide = () => {
-    dispatch(hideModal());
+    store.dispatch(actionsModal.hideModal());
     focusMessageInput();
   };
   const { t } = useTranslation();

@@ -42,7 +42,6 @@ const Login = ({ notify }) => {
       setAuthFailed(false);
 
       try {
-        // console.log(routes.loginPath());
         const res = await axios.post(routes.loginPath(), values);
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();
@@ -96,11 +95,9 @@ const Login = ({ notify }) => {
                 <Form.Control
                   type="text"
                   onChange={formik.handleChange}
-                  // onBlur={formik.handleBlur}
                   value={formik.values.username}
                   placeholder={t('authForm.nicknamePlaceholder')}
                   name="username"
-                  // id="username"
                   autoComplete="username"
                   isInvalid={authFailed}
                   required
@@ -121,11 +118,9 @@ const Login = ({ notify }) => {
                 <Form.Control
                   type="password"
                   onChange={formik.handleChange}
-                  // onBlur={formik.handleBlur}
                   value={formik.values.password}
                   placeholder={t('authForm.passwordPlaceholder')}
                   name="password"
-                  // id="password"
                   isInvalid={authFailed}
                   required
                 />

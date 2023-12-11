@@ -13,11 +13,10 @@ const channelsSlice = createSlice({
       const { channel } = action.payload;
       state.entities[channel.id] = channel;
       state.ids.push(channel.id);
+      state.currentChannelId = Number(sessionStorage.getItem('currentChannelId')) ?? channel.id;
     },
     setCurrentChannel(state, action) {
       const { channelId } = action.payload;
-      // console.log(`setCurrentChannel ${channelId}`);
-      // console.log(channelId);
       state.currentChannelId = channelId;
     },
     renameChannel(state, action) {
@@ -27,15 +26,13 @@ const channelsSlice = createSlice({
     removeChannel(state, action) {
       const { channel } = action.payload;
       console.log(`onRemoveChannel: ${state.entities[channel.id]}`);
-      // console.log(state.entities[channel.id]);
       delete state.entities[channel.id];
       state.ids = state.ids.filter((id) => id !== channel.id);
+      state.currentChannelId = state.entities[state.ids[0]].id;
     },
   },
 });
 
-export const {
-  addChannel, removeChannel, renameChannel, setCurrentChannel,
-} = channelsSlice.actions;
+export const { actionsChannels } = channelsSlice;
 
 export default channelsSlice.reducer;

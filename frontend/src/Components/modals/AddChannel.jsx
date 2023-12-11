@@ -7,12 +7,11 @@ import {
   FormControl,
   FormLabel,
 } from 'react-bootstrap';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import { hideModal } from '../../slices/modalSlice.js';
-// import socket from '../socket.js';
-// import io from 'socket.io-client';
+import { actionsModal } from '../../slices/modalSlice.js';
+import store from '../../slices/index.js';
 
 const generateOnSubmit = (
   {
@@ -23,7 +22,6 @@ const generateOnSubmit = (
   disableButtons();
   const newChannel = { name: filter.clean(values.body) };
   console.log(newChannel);
-  // Object.values(channels.entities).find(({ name }) => console.log(name));
   if (
     !Object.values(channels.entities).find(
       ({ name }) => newChannel.name === name,
@@ -52,9 +50,8 @@ const generateOnSubmit = (
 const AddChannel = (props) => {
   const { focusMessageInput } = props;
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const onHide = () => {
-    dispatch(hideModal());
+    store.dispatch(actionsModal.hideModal());
     focusMessageInput();
   };
   const channels = useSelector((state) => state.channels);
@@ -77,7 +74,7 @@ const AddChannel = (props) => {
 
   const inputRef = useRef();
   useEffect(() => {
-    inputRef.current.select();
+    inputRef.current.focus();
   }, []);
 
   return (

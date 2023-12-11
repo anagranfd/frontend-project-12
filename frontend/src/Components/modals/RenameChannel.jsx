@@ -3,14 +3,11 @@ import { useFormik } from 'formik';
 import {
   Modal, FormGroup, FormControl, FormLabel,
 } from 'react-bootstrap';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import { hideModal } from '../../slices/modalSlice.js';
-// import socket from '../socket.js';
-// import io from 'socket.io-client';
-
-// const socket = io();
+import { actionsModal } from '../../slices/modalSlice.js';
+import store from '../../slices/index.js';
 
 const generateOnSubmit = (
   {
@@ -20,7 +17,6 @@ const generateOnSubmit = (
     notify,
     filter,
     socket,
-    // channelToRename,
     onHide,
     t,
   },
@@ -57,10 +53,8 @@ const generateOnSubmit = (
 
 const Rename = (props) => {
   const { modalInfo, focusMessageInput } = props;
-  const dispatch = useDispatch();
-  // const channelToRename = useSelector((state) => state.modal.item);
   const onHide = () => {
-    dispatch(hideModal());
+    store.dispatch(actionsModal.hideModal());
     focusMessageInput();
   };
   const { t } = useTranslation();

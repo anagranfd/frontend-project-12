@@ -2,14 +2,15 @@ import axios from 'axios';
 import React, {
   useEffect, useState, useRef, useContext,
 } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import filter from 'leo-profanity';
 import { SocketContext } from '../contexts/index.jsx';
 import getModal from './modals/index.js';
-import { addChannel, setCurrentChannel } from '../slices/channelsSlice.js';
-import { addMessage } from '../slices/messagesSlice.js';
-import { showModal } from '../slices/modalSlice.js';
+import { actionsChannels } from '../slices/channelsSlice.js';
+import { actionsMessages } from '../slices/messagesSlice.js';
+import { actionsModal } from '../slices/modalSlice.js';
+import store from '../slices/index.js';
 import routes from '../routes.js';
 import PlusSquareIcon from '../assets/plus-square.svg';
 import Channels from './Channels.jsx';
@@ -48,9 +49,6 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
   const currentChannelId = useSelector(
     (state) => state.channels.currentChannelId,
   );
-  // console.log(`onUseSelector currentChannelId: ${currentChannelId}`);
-
-  const dispatch = useDispatch();
 
   const { username } = JSON.parse(localStorage.getItem('userId'));
 
@@ -76,13 +74,16 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
         const responseMessages = response.data.messages;
         const responseCurrentChannelId = response.data.currentChannelId;
         responseChannels.forEach((ch) => {
-          dispatch(addChannel({ channel: ch }));
+          store.dispatch(actionsChannels.addChannel({ channel: ch }));
         });
         responseMessages.forEach((m) => {
-          dispatch(addMessage({ message: m }));
+          store.dispatch(actionsMessages.addMessage({ message: m }));
         });
-        dispatch(setCurrentChannel({ channelId: responseCurrentChannelId }));
-        // console.log(`onAxios ${responseCurrentChannelId}`);
+        store.dispatch(
+          actionsChannels.setCurrentChannel({
+            channelId: responseCurrentChannelId,
+          }),
+        );
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -90,7 +91,7 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
 
     fetchContent();
     focusMessageInput();
-  }, [dispatch]);
+  }, []);
 
   const socket = useContext(SocketContext);
 
@@ -110,14 +111,10 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
 
     socket.emit('newMessage', newMessage, (response) => {
       if (response && response.status === 'ok') {
-        // setToastMessage(t('authForm.fetchingErrors.newMessageDelivered'));
         console.log(t('authForm.fetchingErrors.newMessageDelivered'));
-        // notify(t('authForm.fetchingErrors.newMessageDelivered'));
         enableButtons();
       } else {
-        // setToastMessage(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
         console.log(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
-        // notify(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
         enableButtons();
       }
     });
@@ -138,7 +135,6 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
     }
 
     const Component = getModal(modalInfoRender.type);
-    // console.log(modalInfoRender);
     return (
       <Component
         modalInfo={modalInfoRender}
@@ -178,7 +174,9 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
                 type="button"
                 onClick={() => {
                   if (!isChannelButtonDisabled) {
-                    dispatch(showModal({ type: 'addChannel' }));
+                    store.dispatch(
+                      actionsModal.showModal({ type: 'addChannel' }),
+                    );
                   }
                 }}
                 className="p-0 mt-1 text-primary"

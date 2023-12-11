@@ -1,25 +1,18 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { setCurrentChannel } from '../slices/channelsSlice.js';
-import { showModal } from '../slices/modalSlice.js';
+import { useSelector } from 'react-redux';
+import { actionsChannels } from '../slices/channelsSlice.js';
+import { actionsModal } from '../slices/modalSlice.js';
+import store from '../slices/index.js';
 
-const Channels = ({
-  channels,
-  // handleChannelClick,
-  // showModal,
-  focusMessageInput,
-  t,
-}) => {
-  const dispatch = useDispatch();
+const Channels = ({ channels, focusMessageInput, t }) => {
   const currentChannelId = useSelector(
     (state) => state.channels.currentChannelId,
   );
 
-  // Number(sessionStorage.getItem('currentChannelId')) || 1
-
   const handleChannelClick = (channel) => {
-    // setCurrentChannelId(channel.id);
-    dispatch(setCurrentChannel({ channelId: channel.id }));
+    store.dispatch(
+      actionsChannels.setCurrentChannel({ channelId: channel.id }),
+    );
     sessionStorage.setItem('currentChannelId', channel.id);
     focusMessageInput();
   };
@@ -85,8 +78,12 @@ const Channels = ({
                     <a
                       className="dropdown-item"
                       href="#remove"
-                      onClick={() => dispatch(showModal({ type: 'removeChannel', item: ch }))}
-                      // onClick={() => showModal('removeChannel', ch)}
+                      onClick={() => store.dispatch(
+                        actionsModal.showModal({
+                          type: 'removeChannel',
+                          item: ch,
+                        }),
+                      )}
                     >
                       {t('channelMenu.removeChannel')}
                     </a>
@@ -98,8 +95,12 @@ const Channels = ({
                     <a
                       className="dropdown-item"
                       href="#rename"
-                      onClick={() => dispatch(showModal({ type: 'renameChannel', item: ch }))}
-                      // onClick={() => showModal('renameChannel', ch)}
+                      onClick={() => store.dispatch(
+                        actionsModal.showModal({
+                          type: 'renameChannel',
+                          item: ch,
+                        }),
+                      )}
                     >
                       {t('channelMenu.renameChannel')}
                     </a>

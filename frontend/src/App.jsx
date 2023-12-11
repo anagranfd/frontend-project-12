@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,24 +6,14 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
-// import { useSelector, useDispatch } from 'react-redux';
-
-// import io from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
 import useAuth from './hooks/index.jsx';
 import AuthProvider from './Components/providers/AuthProvider.jsx';
 import SocketProvider from './Components/providers/SocketProvider.jsx';
-// import { SocketContext } from './contexts/index.jsx';
-// import socket from './Components/socket.js';
-
-// import {
-//   addChannel,
-//   setCurrentChannel,
-//   removeChannel,
-//   renameChannel,
-// } from './slices/channelsSlice.js';
-// import { addMessage, removeMessages } from './slices/messagesSlice.js';
-
+import { SocketContext } from './contexts/index.jsx';
+import store from './slices/index.js';
+import { actionsMessages } from './slices/messagesSlice.js';
+import { actionsChannels } from './slices/channelsSlice.js';
 import Login from './Components/Login';
 import Signup from './Components/Signup';
 import Page404 from './Components/Page404';
@@ -33,8 +23,6 @@ import Navbar from './Components/Navbar.jsx';
 const MainRoute = ({ children }) => {
   const auth = useAuth();
   const location = useLocation();
-
-  // console.log(auth.loggedIn);
   return auth.loggedIn ? (
     children
   ) : (
@@ -43,14 +31,7 @@ const MainRoute = ({ children }) => {
 };
 
 const App = () => {
-  // const dispatch = useDispatch();
-  // const channels = useSelector((state) => state.channels);
-  // const currentChannelId = useSelector((state) => state.currentChannelId);
-  // const messages = useSelector((state) => state.messages);
-
-  // const [currentChannelId, setCurrentChannel] = useState(null);
   const [isLogoutButtonDisabled, setisLogoutButtonDisabled] = useState(false);
-  // const logoutButtonRef = useRef(null);
 
   const notify = (msg) => toast(msg, {
     position: 'top-right',
@@ -78,59 +59,29 @@ const App = () => {
     />
   );
 
-  // const socketRef = useRef(null);
+  const socket = useContext(SocketContext);
 
-  // useEffect(() => {
-  //   socket = io();
-  //   return () => {
-  //     sessionStorage.removeItem('currentChannelId');
-  //     socket.disconnect();
-  //   };
-  // }, []);
+  useEffect(() => {
+    socket.on('connect_error', () => {
+      console.log('Произошла ошибка соединения с сервером.');
+      setTimeout(() => {
+        socket.connect();
+      }, 1000);
+    });
 
-  // const socket = useContext(SocketContext);
-
-  // useEffect(() => {
-  //   socket.on('connect_error', () => {
-  //     console.log('Произошла ошибка соединения с сервером.');
-  //     setTimeout(() => {
-  //       socket.connect();
-  //     }, 1000);
-  //   });
-
-  //   socket.on('newMessage', (message) => {
-  //     dispatch(addMessage({ message }));
-  //   });
-
-  //   socket.on('newChannel', (channel) => {
-  //     dispatch(addChannel({ channel }));
-  //     if (sessionStorage.getItem('currentChannelId')) {
-  //       dispatch(
-  //         setCurrentChannel({
-  //           channelId:
-  //             Number(sessionStorage.getItem('currentChannelId')) ??
-  //             currentChannelId,
-  //         })
-  //       );
-  //     }
-  //   });
-
-  //   socket.on('renameChannel', (channel) => {
-  //     dispatch(renameChannel({ channel }));
-  //   });
-
-  //   socket.on('removeChannel', (channel) => {
-  //     dispatch(setCurrentChannel({ channelId: channels.ids[0] }));
-  //     dispatch(removeMessages({ channel }));
-  //     dispatch(removeChannel({ channel }));
-  //   });
-
-  //   // socket.on('disconnect', (reason) => {
-  //   //   if (reason === 'io server disconnect') {
-  //   //     socket.connect();
-  //   //   }
-  //   // });
-  // });
+    socket.on('newChannel', (channel) => {
+      store.dispatch(actionsChannels.addChannel({ channel }));
+    });
+    socket.on('renameChannel', (channel) => {
+      store.dispatch(actionsChannels.renameChannel({ channel }));
+    });
+    socket.on('removeChannel', (channel) => {
+      store.dispatch(actionsChannels.removeChannel({ channel }));
+    });
+    socket.on('newMessage', (message) => {
+      store.dispatch(actionsMessages.addMessage({ message }));
+    });
+  });
 
   return (
     <AuthProvider>

@@ -28,7 +28,6 @@ const Signup = ({ notify }) => {
       .required(t('authForm.validationErrors.requiredField')),
     password: Yup.string()
       .min(6, t('authForm.validationErrors.passwordLettersNotLess'))
-      // .max(50, t('authForm.validationErrors.passwordLettersMax'))
       .required(t('authForm.validationErrors.requiredField')),
     confirmPassword: Yup.string()
       .oneOf(
@@ -49,7 +48,6 @@ const Signup = ({ notify }) => {
       setAuthFailed(false);
 
       try {
-        // console.log(routes.loginPath());
         const res = await axios.post(routes.signupPath(), values);
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();
@@ -111,11 +109,9 @@ const Signup = ({ notify }) => {
                 <Form.Control
                   type="text"
                   onChange={formik.handleChange}
-                  // onBlur={formik.handleBlur}
                   value={formik.values.username}
                   placeholder={t('authForm.usernamePlaceholder')}
                   name="username"
-                  // id="username"
                   autoComplete="username"
                   isInvalid={authFailed}
                   required
@@ -136,11 +132,9 @@ const Signup = ({ notify }) => {
                 <Form.Control
                   type="password"
                   onChange={formik.handleChange}
-                  // onBlur={formik.handleBlur}
                   value={formik.values.password}
                   placeholder={t('authForm.passwordPlaceholder')}
                   name="password"
-                  // id="password"
                   isInvalid={authFailed}
                   required
                 />
@@ -159,11 +153,9 @@ const Signup = ({ notify }) => {
                 <Form.Control
                   type="password"
                   onChange={formik.handleChange}
-                  // onBlur={formik.handleBlur}
                   value={formik.values.confirmPassword}
                   placeholder={t('authForm.passwordConfirmationPlaceholder')}
                   name="confirmPassword"
-                  // id="confirmPassword"
                   isInvalid={authFailed}
                   required
                 />
