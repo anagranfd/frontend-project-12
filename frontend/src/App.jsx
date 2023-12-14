@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,12 +6,11 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import io from 'socket.io-client';
+import { ToastContainer } from 'react-toastify';
 import useAuth from './hooks/index.jsx';
+import { socket } from './contexts/index.jsx';
 import AuthProvider from './Components/providers/AuthProvider.jsx';
 import SocketProvider from './Components/providers/SocketProvider.jsx';
-// import { SocketContext } from './contexts/index.jsx';
 import store from './slices/index.js';
 import { actionsMessages } from './slices/messagesSlice.js';
 import { actionsChannels } from './slices/channelsSlice.js';
@@ -34,17 +33,6 @@ const MainRoute = ({ children }) => {
 const App = () => {
   const [isLogoutButtonDisabled, setisLogoutButtonDisabled] = useState(false);
 
-  const notify = (msg) => toast(msg, {
-    position: 'top-right',
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: 'light',
-  });
-
   const toastContainer = (
     <ToastContainer
       position="top-right"
@@ -60,36 +48,30 @@ const App = () => {
     />
   );
 
-  // const socket = useContext(SocketContext);
+  socket.on('connect_error', () => {
+    console.log('Произошла ошибка соединения с сервером.');
+    setTimeout(() => {
+      socket.connect();
+    }, 1000);
+  });
 
-  useEffect(() => {
-    const socket = io();
-
-    socket.on('connect_error', () => {
-      console.log('Произошла ошибка соединения с сервером.');
-      setTimeout(() => {
-        socket.connect();
-      }, 1000);
-    });
-
-    socket.on('newChannel', (channel) => {
-      store.dispatch(actionsChannels.addChannel({ channel }));
-    });
-    socket.on('renameChannel', (channel) => {
-      store.dispatch(actionsChannels.renameChannel({ channel }));
-    });
-    socket.on('removeChannel', (channel) => {
-      store.dispatch(actionsChannels.removeChannel({ channel }));
-    });
-    socket.on('newMessage', (message) => {
-      store.dispatch(actionsMessages.addMessage({ message }));
-    });
+  socket.on('newChannel', (channel) => {
+    store.dispatch(actionsChannels.addChannel({ channel }));
+  });
+  socket.on('renameChannel', (channel) => {
+    store.dispatch(actionsChannels.renameChannel({ channel }));
+  });
+  socket.on('removeChannel', (channel) => {
+    store.dispatch(actionsChannels.removeChannel({ channel }));
+  });
+  socket.on('newMessage', (message) => {
+    store.dispatch(actionsMessages.addMessage({ message }));
   });
 
   return (
     <AuthProvider>
       {toastContainer}
-      <SocketProvider>
+      <SocketProvider socket={socket}>
         <Router>
           <Navbar isLogoutButtonDisabled={isLogoutButtonDisabled} />
           <div className="container">
@@ -99,24 +81,13 @@ const App = () => {
                 element={(
                   <MainRoute>
                     <MainPage
-                      notify={notify}
                       setisLogoutButtonDisabled={setisLogoutButtonDisabled}
                     />
                   </MainRoute>
                 )}
               />
-              <Route
-                path="/login"
-                element={
-                  <Login notify={notify} toastContainer={toastContainer} />
-                }
-              />
-              <Route
-                path="/signup"
-                element={
-                  <Signup notify={notify} toastContainer={toastContainer} />
-                }
-              />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="*" element={<Page404 />} />
             </Routes>
           </div>

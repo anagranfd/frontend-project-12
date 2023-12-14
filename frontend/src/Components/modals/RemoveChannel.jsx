@@ -1,26 +1,27 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Modal, FormGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
 import store from '../../slices/index.js';
+import notify from '../utils/notify.js';
 
 const generateOnSubmit = ({
-  modalInfo, disableButtons, enableButtons, notify, socket, onHide, t,
-}) => (e) => {
+  modalInfo, disableButtons, enableButtons, removeChannel, onHide, t,
+}) => async (e) => {
   e.preventDefault();
   disableButtons();
   const channelIdToRemove = modalInfo.item;
-  socket.emit('removeChannel', channelIdToRemove, (response) => {
-    if (response && response.status === 'ok') {
-      console.log(t('authForm.fetchingErrors.channelRemovingDelivered'));
-      notify(t('authForm.fetchingErrors.channelRemovingDelivered'));
-      enableButtons();
-    } else {
-      console.log(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
-      notify(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
-      enableButtons();
-    }
-  });
+  try {
+    await removeChannel(channelIdToRemove);
+    console.log(t('authForm.fetchingErrors.channelRemovingDelivered'));
+    notify(t('authForm.fetchingErrors.channelRemovingDelivered'));
+  } catch (error) {
+    console.log(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
+    notify(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
+  } finally {
+    enableButtons();
+  }
   onHide();
 };
 
@@ -31,7 +32,13 @@ const Remove = (props) => {
     focusMessageInput();
   };
   const { t } = useTranslation();
-  const onSubmit = generateOnSubmit({ ...props, onHide, t });
+  const { removeChannel } = useContext(SocketContext);
+  const onSubmit = generateOnSubmit({
+    ...props,
+    removeChannel,
+    onHide,
+    t,
+  });
 
   return (
     <Modal show>

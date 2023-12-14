@@ -7,8 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
+import notify from './utils/notify.js';
 
-const Login = ({ notify }) => {
+const Login = () => {
   const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);

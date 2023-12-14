@@ -30,7 +30,7 @@ const getAuthHeader = () => {
   return {};
 };
 
-const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
+const MainPage = ({ setisLogoutButtonDisabled }) => {
   const { t } = useTranslation();
   const messageInputRef = useRef(null);
   const submitButtonRef = useRef(null);
@@ -93,9 +93,9 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
     focusMessageInput();
   }, []);
 
-  const socket = useContext(SocketContext);
+  const { sendMessage } = useContext(SocketContext);
 
-  const handleMessageSending = (e) => {
+  const handleMessageSending = async (e) => {
     e.preventDefault();
     disableButtons();
     const messageText = messageInputRef.current.value;
@@ -109,25 +109,22 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
       username,
     };
 
-    socket.emit('newMessage', newMessage, (response) => {
-      if (response && response.status === 'ok') {
-        console.log(t('authForm.fetchingErrors.newMessageDelivered'));
-        enableButtons();
-      } else {
-        console.log(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
-        enableButtons();
-      }
-    });
-    focusMessageInput();
+    try {
+      await sendMessage(newMessage);
+      console.log(t('authForm.fetchingErrors.newMessageDelivered'));
+    } catch (error) {
+      console.log(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
+    } finally {
+      enableButtons();
+      focusMessageInput();
+    }
   };
 
   const renderModal = ({
     modalInfoRender,
     disableButtonsRender,
     enableButtonsRender,
-    notifyRender,
     filterRender,
-    socketRender,
     focusMessageInputRender,
   }) => {
     if (!modalInfoRender.type) {
@@ -140,9 +137,7 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
         modalInfo={modalInfoRender}
         disableButtons={disableButtonsRender}
         enableButtons={enableButtonsRender}
-        notify={notifyRender}
         filter={filterRender}
-        socket={socketRender}
         focusMessageInput={focusMessageInputRender}
       />
     );
@@ -154,9 +149,7 @@ const MainPage = ({ notify, setisLogoutButtonDisabled }) => {
         modalInfoRender: useSelector((state) => state.modal),
         disableButtonsRender: disableButtons,
         enableButtonsRender: enableButtons,
-        notifyRender: notify,
         filterRender: filter,
-        socketRender: socket,
         focusMessageInputRender: focusMessageInput,
       })}
       <div

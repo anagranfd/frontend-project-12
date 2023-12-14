@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useContext } from 'react';
 import { useFormik } from 'formik';
 import {
   Modal,
@@ -10,15 +10,17 @@ import {
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
+import notify from '../utils/notify.js';
+import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
 import store from '../../slices/index.js';
 
 const generateOnSubmit = (
   {
-    disableButtons, enableButtons, notify, filter, socket, onHide, t,
+    disableButtons, enableButtons, filter, createChannel, onHide, t,
   },
   channels,
-) => (values) => {
+) => async (values) => {
   disableButtons();
   const newChannel = { name: filter.clean(values.body) };
   console.log(newChannel);
@@ -27,18 +29,19 @@ const generateOnSubmit = (
       ({ name }) => newChannel.name === name,
     )
   ) {
-    socket.emit('newChannel', newChannel, (response) => {
-      if (response && response.status === 'ok') {
-        console.log(t('authForm.fetchingErrors.newChannelDelivered'));
-        notify(t('authForm.fetchingErrors.newChannelDelivered'));
-        sessionStorage.setItem('currentChannelId', response.data.id);
-        enableButtons();
-      } else {
-        console.log(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
-        notify(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
-        enableButtons();
-      }
-    });
+    try {
+      await createChannel(newChannel).then((data) => {
+        sessionStorage.setItem('currentChannelId', data.id);
+        console.log(data.id);
+      });
+      console.log(t('authForm.fetchingErrors.newChannelDelivered'));
+      notify(t('authForm.fetchingErrors.newChannelDelivered'));
+    } catch (error) {
+      console.log(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
+      notify(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
+    } finally {
+      enableButtons();
+    }
   } else {
     console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
     notify(t('authForm.fetchingErrors.channelAlreadyExists'));
@@ -56,6 +59,7 @@ const AddChannel = (props) => {
   };
   const channels = useSelector((state) => state.channels);
   console.log(channels);
+  const { createChannel } = useContext(SocketContext);
 
   const NewChannelSchema = Yup.object().shape({
     body: Yup.string()
@@ -67,7 +71,15 @@ const AddChannel = (props) => {
   const formik = useFormik({
     initialValues: { body: '' },
     validationSchema: NewChannelSchema,
-    onSubmit: generateOnSubmit({ ...props, onHide, t }, channels),
+    onSubmit: generateOnSubmit(
+      {
+        ...props,
+        createChannel,
+        onHide,
+        t,
+      },
+      channels,
+    ),
     validateOnBlur: false,
     validateOnChange: false,
   });

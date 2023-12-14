@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useContext } from 'react';
 import { useFormik } from 'formik';
 import {
   Modal, FormGroup, FormControl, FormLabel,
@@ -6,22 +6,23 @@ import {
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
+import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
 import store from '../../slices/index.js';
+import notify from '../utils/notify.js';
 
 const generateOnSubmit = (
   {
     modalInfo,
     disableButtons,
     enableButtons,
-    notify,
     filter,
-    socket,
+    renameChannel,
     onHide,
     t,
   },
   channels,
-) => (values) => {
+) => async (values) => {
   disableButtons();
   const newChannelName = filter.clean(values.body);
   const channelToRename = { ...modalInfo.item, name: newChannelName };
@@ -30,19 +31,16 @@ const generateOnSubmit = (
       ({ name }) => newChannelName === name,
     )
   ) {
-    socket.emit('renameChannel', channelToRename, (response) => {
-      if (response && response.status === 'ok') {
-        console.log(t('authForm.fetchingErrors.channelRenamingDelivered'));
-        notify(t('authForm.fetchingErrors.channelRenamingDelivered'));
-        enableButtons();
-      } else {
-        console.log(
-          t('authForm.fetchingErrors.channelRenamingDeliveryFailed'),
-        );
-        notify(t('authForm.fetchingErrors.channelRenamingDeliveryFailed'));
-        enableButtons();
-      }
-    });
+    try {
+      await renameChannel(channelToRename);
+      console.log(t('authForm.fetchingErrors.channelRenamingDelivered'));
+      notify(t('authForm.fetchingErrors.channelRenamingDelivered'));
+    } catch (error) {
+      console.log(t('authForm.fetchingErrors.channelRenamingDeliveryFailed'));
+      notify(t('authForm.fetchingErrors.channelRenamingDeliveryFailed'));
+    } finally {
+      enableButtons();
+    }
   } else {
     console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
     notify(t('authForm.fetchingErrors.channelAlreadyExists'));
@@ -59,6 +57,7 @@ const Rename = (props) => {
   };
   const { t } = useTranslation();
   const { item } = modalInfo;
+  const { renameChannel } = useContext(SocketContext);
   const channels = useSelector((state) => state.channels);
 
   const RenameChannelSchema = Yup.object().shape({
@@ -71,7 +70,15 @@ const Rename = (props) => {
   const formik = useFormik({
     initialValues: item,
     validationSchema: RenameChannelSchema,
-    onSubmit: generateOnSubmit({ ...props, onHide, t }, channels),
+    onSubmit: generateOnSubmit(
+      {
+        ...props,
+        renameChannel,
+        onHide,
+        t,
+      },
+      channels,
+    ),
     validateOnBlur: false,
     validateOnChange: false,
   });
