@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
 import store from '../../slices/index.js';
-import notify from '../utils/notify.js';
+import notify from '../../utils/notify.js';
 
 const generateOnSubmit = ({
   disableButtons, enableButtons, removeChannel, modalInfo, onHide, t,

@@ -6,11 +6,6 @@ const AuthProvider = ({ children }) => {
     localStorage.getItem('isLoggedIn') === 'true',
   );
 
-  // const getUsername = () => {
-  //   const { username } = JSON.parse(localStorage.getItem('user'));
-  //   return username;
-  // };
-
   const getUsername = useCallback(() => {
     const { username } = JSON.parse(localStorage.getItem('user'));
     return username;

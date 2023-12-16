@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import filter from 'leo-profanity';
-import notify from '../utils/notify.js';
+import notify from '../../utils/notify.js';
 import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
 import store from '../../slices/index.js';

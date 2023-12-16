@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
-import notify from './utils/notify.js';
-import handleAuthError from './utils/handleAuthError.js';
+import notify from '../utils/notify.js';
+import handleAuthError from '../utils/handleAuthError.js';
 
 const Login = () => {
   const { t } = useTranslation();
