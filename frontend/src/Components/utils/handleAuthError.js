@@ -18,7 +18,7 @@ export default (err, setErrorMessage, notify, setAuthFailed, inputRef, t) => {
       case 500:
         setErrorMessage(t('authForm.fetchingErrors.networkError'));
         notify(t('authForm.fetchingErrors.networkError'));
-        throw err;
+        break;
       default:
         setErrorMessage(t('authForm.fetchingErrors.errorOccurred'));
         notify(t('authForm.fetchingErrors.errorOccurred'));
@@ -27,6 +27,5 @@ export default (err, setErrorMessage, notify, setAuthFailed, inputRef, t) => {
   } else {
     setErrorMessage(t('authForm.fetchingErrors.unknownError'));
     notify(t('authForm.fetchingErrors.unknownError'));
-    throw err;
   }
 };
