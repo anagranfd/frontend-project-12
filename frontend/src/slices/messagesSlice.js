@@ -11,7 +11,6 @@ const messagesSlice = createSlice({
   reducers: {
     addMessage(state, action) {
       const { message } = action.payload;
-      console.log('Добавляемое сообщение:', message);
       state.entities[message.id] = message;
       if (!state.ids.includes(message.id)) {
         state.ids.push(message.id);

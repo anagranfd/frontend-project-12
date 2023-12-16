@@ -6,6 +6,7 @@ import {
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
+import filter from 'leo-profanity';
 import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
 import store from '../../slices/index.js';
@@ -13,13 +14,7 @@ import notify from '../utils/notify.js';
 
 const generateOnSubmit = (
   {
-    modalInfo,
-    disableButtons,
-    enableButtons,
-    filter,
-    renameChannel,
-    onHide,
-    t,
+    disableButtons, enableButtons, renameChannel, modalInfo, onHide, t,
   },
   channels,
 ) => async (values) => {
@@ -33,16 +28,13 @@ const generateOnSubmit = (
   ) {
     try {
       await renameChannel(channelToRename);
-      console.log(t('authForm.fetchingErrors.channelRenamingDelivered'));
       notify(t('authForm.fetchingErrors.channelRenamingDelivered'));
     } catch (error) {
-      console.log(t('authForm.fetchingErrors.channelRenamingDeliveryFailed'));
       notify(t('authForm.fetchingErrors.channelRenamingDeliveryFailed'));
     } finally {
       enableButtons();
     }
   } else {
-    console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
     notify(t('authForm.fetchingErrors.channelAlreadyExists'));
     enableButtons();
   }
@@ -50,12 +42,11 @@ const generateOnSubmit = (
 };
 
 const Rename = (props) => {
-  const { modalInfo, focusMessageInput } = props;
   const onHide = () => {
     store.dispatch(actionsModal.hideModal());
-    focusMessageInput();
   };
   const { t } = useTranslation();
+  const modalInfo = useSelector((state) => state.modal);
   const { item } = modalInfo;
   const { renameChannel } = useContext(SocketContext);
   const channels = useSelector((state) => state.channels);
@@ -74,6 +65,7 @@ const Rename = (props) => {
       {
         ...props,
         renameChannel,
+        modalInfo,
         onHide,
         t,
       },

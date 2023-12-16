@@ -49,7 +49,6 @@ const App = () => {
   );
 
   socket.on('connect_error', () => {
-    console.log('Произошла ошибка соединения с сервером.');
     setTimeout(() => {
       socket.connect();
     }, 1000);

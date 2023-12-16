@@ -25,7 +25,6 @@ const channelsSlice = createSlice({
     },
     removeChannel(state, action) {
       const { channel } = action.payload;
-      console.log(`onRemoveChannel: ${state.entities[channel.id]}`);
       delete state.entities[channel.id];
       state.ids = state.ids.filter((id) => id !== channel.id);
       state.currentChannelId = state.entities[state.ids[0]].id;

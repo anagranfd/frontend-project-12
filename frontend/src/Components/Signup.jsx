@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 import notify from './utils/notify.js';
+import handleAuthError from './utils/handleAuthError.js';
 
 const Signup = () => {
   const { t } = useTranslation();
@@ -50,47 +51,19 @@ const Signup = () => {
 
       try {
         const res = await axios.post(routes.signupPath(), values);
-        localStorage.setItem('userId', JSON.stringify(res.data));
-        auth.logIn();
-        console.log(JSON.stringify(res.data));
+        auth.logIn(res.data);
         navigate(routes.mainPagePath());
       } catch (err) {
         formik.setSubmitting(false);
         setAuthFailed(true);
-        if (err.isAxiosError && err.response) {
-          switch (err.response.status) {
-            case 409:
-              setErrorMessage(
-                t('authForm.fetchingErrors.usernameAlreadyExists'),
-              );
-              notify(t('authForm.fetchingErrors.usernameAlreadyExists'));
-              setAuthFailed(true);
-              inputRef.current.select();
-              break;
-            case 401:
-              setErrorMessage(
-                t('authForm.fetchingErrors.usernameOrPasswordIncorrect'),
-              );
-              notify(
-                t('authForm.fetchingErrors.usernameOrPasswordIncorrectToast'),
-              );
-              setAuthFailed(true);
-              inputRef.current.select();
-              break;
-            case 500:
-              setErrorMessage(t('authForm.fetchingErrors.networkError'));
-              notify(t('authForm.fetchingErrors.networkError'));
-              throw err;
-            default:
-              setErrorMessage(t('authForm.fetchingErrors.errorOccurred'));
-              notify(t('authForm.fetchingErrors.errorOccurred'));
-              break;
-          }
-        } else {
-          setErrorMessage(t('authForm.fetchingErrors.unknownError'));
-          notify(t('authForm.fetchingErrors.unknownError'));
-          throw err;
-        }
+        handleAuthError(
+          err,
+          setErrorMessage,
+          notify,
+          setAuthFailed,
+          inputRef,
+          t,
+        );
       }
     },
   });

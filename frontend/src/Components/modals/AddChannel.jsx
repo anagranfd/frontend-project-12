@@ -10,20 +10,17 @@ import {
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
+import filter from 'leo-profanity';
 import notify from '../utils/notify.js';
 import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
 import store from '../../slices/index.js';
 
-const generateOnSubmit = (
-  {
-    disableButtons, enableButtons, filter, createChannel, onHide, t,
-  },
-  channels,
-) => async (values) => {
+const generateOnSubmit = ({
+  disableButtons, enableButtons, createChannel, onHide, t,
+}, channels) => async (values) => {
   disableButtons();
   const newChannel = { name: filter.clean(values.body) };
-  console.log(newChannel);
   if (
     !Object.values(channels.entities).find(
       ({ name }) => newChannel.name === name,
@@ -32,18 +29,14 @@ const generateOnSubmit = (
     try {
       await createChannel(newChannel).then((data) => {
         sessionStorage.setItem('currentChannelId', data.id);
-        console.log(data.id);
       });
-      console.log(t('authForm.fetchingErrors.newChannelDelivered'));
       notify(t('authForm.fetchingErrors.newChannelDelivered'));
     } catch (error) {
-      console.log(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
       notify(t('authForm.fetchingErrors.newChannelDeliveryFailed'));
     } finally {
       enableButtons();
     }
   } else {
-    console.log(t('authForm.fetchingErrors.channelAlreadyExists'));
     notify(t('authForm.fetchingErrors.channelAlreadyExists'));
     enableButtons();
   }
@@ -51,14 +44,11 @@ const generateOnSubmit = (
 };
 
 const AddChannel = (props) => {
-  const { focusMessageInput } = props;
   const { t } = useTranslation();
   const onHide = () => {
     store.dispatch(actionsModal.hideModal());
-    focusMessageInput();
   };
   const channels = useSelector((state) => state.channels);
-  console.log(channels);
   const { createChannel } = useContext(SocketContext);
 
   const NewChannelSchema = Yup.object().shape({

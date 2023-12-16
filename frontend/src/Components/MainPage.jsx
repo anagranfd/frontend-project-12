@@ -10,6 +10,7 @@ import getModal from './modals/index.js';
 import { actionsChannels } from '../slices/channelsSlice.js';
 import { actionsMessages } from '../slices/messagesSlice.js';
 import { actionsModal } from '../slices/modalSlice.js';
+import useAuth from '../hooks/index.jsx';
 import store from '../slices/index.js';
 import routes from '../routes.js';
 import PlusSquareIcon from '../assets/plus-square.svg';
@@ -17,24 +18,24 @@ import Channels from './Channels.jsx';
 import Messages from './Messages.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 
-filter.clearList();
-
-filter.add(filter.getDictionary('en'));
-filter.add(filter.getDictionary('ru'));
-
 const getAuthHeader = () => {
-  const userId = JSON.parse(localStorage.getItem('userId'));
-  if (userId && userId.token) {
-    return { Authorization: `Bearer ${userId.token}` };
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (user && user.token) {
+    return { Authorization: `Bearer ${user.token}` };
   }
   return {};
 };
 
 const MainPage = ({ setisLogoutButtonDisabled }) => {
+  filter.clearList();
+  filter.add(filter.getDictionary('en'));
+  filter.add(filter.getDictionary('ru'));
+
   const { t } = useTranslation();
   const messageInputRef = useRef(null);
   const submitButtonRef = useRef(null);
   const addChannelButtonRef = useRef(null);
+  const { getUsername } = useAuth();
 
   const focusMessageInput = () => {
     messageInputRef.current.value = '';
@@ -45,12 +46,11 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
 
   const channels = useSelector((state) => state.channels);
   const messages = useSelector((state) => state.messages);
-  console.log(messages);
   const currentChannelId = useSelector(
     (state) => state.channels.currentChannelId,
   );
 
-  const { username } = JSON.parse(localStorage.getItem('userId'));
+  const username = getUsername();
 
   const disableButtons = () => {
     submitButtonRef.current.disabled = true;
@@ -111,7 +111,6 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
 
     try {
       await sendMessage(newMessage);
-      console.log(t('authForm.fetchingErrors.newMessageDelivered'));
     } catch (error) {
       console.log(t('authForm.fetchingErrors.newMessageDeliveryFailed'));
     } finally {
@@ -124,8 +123,6 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
     modalInfoRender,
     disableButtonsRender,
     enableButtonsRender,
-    filterRender,
-    focusMessageInputRender,
   }) => {
     if (!modalInfoRender.type) {
       return null;
@@ -134,11 +131,8 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
     const Component = getModal(modalInfoRender.type);
     return (
       <Component
-        modalInfo={modalInfoRender}
         disableButtons={disableButtonsRender}
         enableButtons={enableButtonsRender}
-        filter={filterRender}
-        focusMessageInput={focusMessageInputRender}
       />
     );
   };
@@ -149,8 +143,6 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
         modalInfoRender: useSelector((state) => state.modal),
         disableButtonsRender: disableButtons,
         enableButtonsRender: enableButtons,
-        filterRender: filter,
-        focusMessageInputRender: focusMessageInput,
       })}
       <div
         className="container d-flex flex-column p-3 mt-2 overflow-hidden rounded shadow position-relative"

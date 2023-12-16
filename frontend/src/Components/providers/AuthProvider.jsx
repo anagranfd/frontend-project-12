@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { AuthContext } from '../../contexts/index.jsx';
 
 const AuthProvider = ({ children }) => {
@@ -6,24 +6,36 @@ const AuthProvider = ({ children }) => {
     localStorage.getItem('isLoggedIn') === 'true',
   );
 
-  const logIn = () => {
+  // const getUsername = () => {
+  //   const { username } = JSON.parse(localStorage.getItem('user'));
+  //   return username;
+  // };
+
+  const getUsername = useCallback(() => {
+    const { username } = JSON.parse(localStorage.getItem('user'));
+    return username;
+  }, []);
+
+  const logIn = (username) => {
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('user', JSON.stringify(username));
     setLoggedIn(true);
   };
 
   const logOut = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userId');
+    localStorage.removeItem('user');
     setLoggedIn(false);
   };
 
   const authValue = useMemo(
     () => ({
+      getUsername,
       loggedIn,
       logIn,
       logOut,
     }),
-    [loggedIn],
+    [loggedIn, getUsername],
   );
 
   return (
