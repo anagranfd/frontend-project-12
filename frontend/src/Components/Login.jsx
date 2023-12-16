@@ -85,11 +85,11 @@ const Login = () => {
                   required
                   ref={inputRef}
                 />
-                {formik.touched.username && formik.errors.username ? (
+                {formik.touched.username && formik.errors.username && (
                   <div className="invalid-feedback d-block">
                     {formik.errors.username}
                   </div>
-                ) : null}
+                )}
               </FloatingLabel>
 
               <FloatingLabel

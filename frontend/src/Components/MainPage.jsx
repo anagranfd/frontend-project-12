@@ -18,14 +18,6 @@ import Channels from './Channels.jsx';
 import Messages from './Messages.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 
-const getAuthHeader = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (user && user.token) {
-    return { Authorization: `Bearer ${user.token}` };
-  }
-  return {};
-};
-
 const MainPage = ({ setisLogoutButtonDisabled }) => {
   filter.clearList();
   filter.add(filter.getDictionary('en'));
@@ -35,7 +27,7 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
   const messageInputRef = useRef(null);
   const submitButtonRef = useRef(null);
   const addChannelButtonRef = useRef(null);
-  const { getUsername } = useAuth();
+  const { authHeader, currentUser } = useAuth();
 
   const focusMessageInput = () => {
     messageInputRef.current.value = '';
@@ -49,8 +41,6 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
   const currentChannelId = useSelector(
     (state) => state.channels.currentChannelId,
   );
-
-  const username = getUsername();
 
   const disableButtons = () => {
     submitButtonRef.current.disabled = true;
@@ -68,7 +58,7 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
     const fetchContent = async () => {
       try {
         const response = await axios.get(routes.dataPath(), {
-          headers: getAuthHeader(),
+          headers: authHeader,
         });
         const responseChannels = response.data.channels;
         const responseMessages = response.data.messages;
@@ -91,7 +81,7 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
 
     fetchContent();
     focusMessageInput();
-  }, []);
+  }, [authHeader]);
 
   const { sendMessage } = useContext(SocketContext);
 
@@ -106,7 +96,7 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
     const newMessage = {
       body: filter.clean(messageText),
       channelId: currentChannelId,
-      username,
+      username: currentUser.username,
     };
 
     try {
