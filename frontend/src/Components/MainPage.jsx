@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import filter from 'leo-profanity';
 import { SocketContext } from '../contexts/index.jsx';
 import getModal from './modals/index.js';
@@ -16,6 +17,7 @@ import routes from '../routes.js';
 import PlusSquareIcon from '../assets/plus-square.svg';
 import Channels from './Channels.jsx';
 import Messages from './Messages.jsx';
+import Spinner from './Spinner.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 
 const MainPage = ({ setisLogoutButtonDisabled }) => {
@@ -28,12 +30,16 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
   const submitButtonRef = useRef(null);
   const addChannelButtonRef = useRef(null);
   const { authHeader, currentUser } = useAuth();
+  const navigate = useNavigate();
 
   const focusMessageInput = () => {
-    messageInputRef.current.value = '';
-    messageInputRef.current.focus();
+    if (messageInputRef.current) {
+      messageInputRef.current.value = '';
+      messageInputRef.current.focus();
+    }
   };
 
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isChannelButtonDisabled, setIsChannelButtonDisabled] = useState(false);
 
   const channels = useSelector((state) => state.channels);
@@ -74,14 +80,17 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
             channelId: responseCurrentChannelId,
           }),
         );
+        setIsPageLoaded(true);
       } catch (error) {
         console.error('Error fetching data:', error);
+        navigate(routes.loginPagePath());
+      } finally {
+        focusMessageInput();
       }
     };
 
     fetchContent();
-    focusMessageInput();
-  }, [authHeader]);
+  }, [authHeader, navigate]);
 
   const { sendMessage } = useContext(SocketContext);
 
@@ -138,87 +147,94 @@ const MainPage = ({ setisLogoutButtonDisabled }) => {
         className="container d-flex flex-column p-3 mt-2 overflow-hidden rounded shadow position-relative"
         style={{ height: '90vh' }}
       >
-        <div className="row d-flex flex-row flex-grow-1 m-0">
-          <div
-            className="col-3 chat-sidebar p-0 pe-3"
-            style={{ height: '545px', position: 'relative' }}
-          >
-            <div className="d-flex justify-content-between align-items-center mb-4 mt-2 w-100">
-              <strong>{t('mainPage.channels')}</strong>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!isChannelButtonDisabled) {
-                    store.dispatch(
-                      actionsModal.showModal({ type: 'addChannel' }),
-                    );
-                  }
-                }}
-                className="p-0 mt-1 text-primary"
-                style={{
-                  opacity: isChannelButtonDisabled ? 0.5 : 1,
-                  border: 'none',
-                  background: 'none',
-                }}
-                disabled={isChannelButtonDisabled}
-                ref={addChannelButtonRef}
+        {isPageLoaded ? (
+          <div className="row d-flex flex-row flex-grow-1 m-0">
+            <div
+              className="col-3 chat-sidebar p-0 pe-3"
+              style={{ height: '545px', position: 'relative' }}
+            >
+              <div className="d-flex justify-content-between align-items-center mb-4 mt-2 w-100">
+                <strong>{t('mainPage.channels')}</strong>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!isChannelButtonDisabled) {
+                      store.dispatch(
+                        actionsModal.showModal({ type: 'addChannel' }),
+                      );
+                    }
+                  }}
+                  className="p-0 mt-1 text-primary"
+                  style={{
+                    opacity: isChannelButtonDisabled ? 0.5 : 1,
+                    border: 'none',
+                    background: 'none',
+                  }}
+                  disabled={isChannelButtonDisabled}
+                  ref={addChannelButtonRef}
+                >
+                  <img src={PlusSquareIcon} alt="+" width="24" height="24" />
+                  <span className="visually-hidden">+</span>
+                </button>
+              </div>
+              <div
+                className="overflow-auto mt-5 pt-2"
+                style={{ height: '100%' }}
               >
-                <img src={PlusSquareIcon} alt="+" width="24" height="24" />
-                <span className="visually-hidden">+</span>
-              </button>
-            </div>
-            <div className="overflow-auto mt-5 pt-2" style={{ height: '100%' }}>
-              <Channels
-                channels={channels.entities}
-                focusMessageInput={focusMessageInput}
-                t={t}
-              />
-            </div>
-          </div>
-          <div className="col-9 d-flex flex-column flex-grow-1 p-0">
-            <div className="card d-flex flex-column flex-grow-1">
-              <div className="card-header">
-                <strong>
-                  {`# ${
-                    currentChannelId
-                    && channels.entities[currentChannelId]?.name
-                  }`}
-                </strong>
-                <p>
-                  {t('mainPage.messages.key', {
-                    count: Object.values(messages.entities).filter(
-                      (m) => Number(m.channelId) === currentChannelId,
-                    ).length,
-                  })}
-                </p>
+                <Channels
+                  channels={channels.entities}
+                  focusMessageInput={focusMessageInput}
+                  t={t}
+                />
               </div>
-              <Messages
-                messages={messages.entities}
-                currentChannelId={currentChannelId}
-              />
-              <div className="card-footer p-2">
-                <form className="input-group" onSubmit={handleMessageSending}>
-                  <input
-                    type="text"
-                    className="form-control rounded-2 me-2"
-                    aria-label={t('mainPage.newMessageLabel')}
-                    ref={messageInputRef}
-                    placeholder={t('mainPage.newMessagePlaceholder')}
-                  />
-                  <div className="input-group-append">
-                    <button
-                      className="btn btn-outline-secondary"
-                      type="submit"
-                      ref={submitButtonRef}
-                    >
-                      {t('mainPage.newMessageButton')}
-                    </button>
-                  </div>
-                </form>
+            </div>
+            <div className="col-9 d-flex flex-column flex-grow-1 p-0">
+              <div className="card d-flex flex-column flex-grow-1">
+                <div className="card-header">
+                  <strong>
+                    {`# ${
+                      currentChannelId
+                      && channels.entities[currentChannelId]?.name
+                    }`}
+                  </strong>
+                  <p>
+                    {t('mainPage.messages.key', {
+                      count: Object.values(messages.entities).filter(
+                        (m) => Number(m.channelId) === currentChannelId,
+                      ).length,
+                    })}
+                  </p>
+                </div>
+                <Messages
+                  messages={messages.entities}
+                  currentChannelId={currentChannelId}
+                />
+                <div className="card-footer p-2">
+                  <form className="input-group" onSubmit={handleMessageSending}>
+                    <input
+                      type="text"
+                      className="form-control rounded-2 me-2"
+                      aria-label={t('mainPage.newMessageLabel')}
+                      ref={messageInputRef}
+                      placeholder={t('mainPage.newMessagePlaceholder')}
+                    />
+                    <div className="input-group-append">
+                      <button
+                        className="btn btn-outline-secondary"
+                        type="submit"
+                        ref={submitButtonRef}
+                      >
+                        {t('mainPage.newMessageButton')}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <Spinner />
+        )}
       </div>
     </>
   );

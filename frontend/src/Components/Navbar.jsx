@@ -20,7 +20,7 @@ const Navbar = ({ isLogoutButtonDisabled }) => {
         <a className="navbar-brand" href={routes.mainPagePath()}>
           {t('mainPage.navTitle')}
         </a>
-        {auth.loggedIn && (
+        {auth.currentUser && (
           <div className="d-flex">
             <button
               onClick={() => {

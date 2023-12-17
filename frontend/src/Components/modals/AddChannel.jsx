@@ -14,6 +14,7 @@ import filter from 'leo-profanity';
 import notify from '../../utils/notify.js';
 import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
+import { actionsChannels } from '../../slices/channelsSlice.js';
 import store from '../../slices/index.js';
 
 const generateOnSubmit = ({
@@ -29,6 +30,16 @@ const generateOnSubmit = ({
     try {
       await createChannel(newChannel).then((data) => {
         sessionStorage.setItem('currentChannelId', data.id);
+        if (
+          sessionStorage.getItem('currentChannelId')
+            && Number(sessionStorage.getItem('currentChannelId')) === data.id
+        ) {
+          store.dispatch(
+            actionsChannels.setCurrentChannel({
+              channelId: data.id,
+            }),
+          );
+        }
       });
       notify(t('authForm.fetchingErrors.newChannelDelivered'));
     } catch (error) {

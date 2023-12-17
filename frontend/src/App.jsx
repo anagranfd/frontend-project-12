@@ -23,7 +23,7 @@ import Navbar from './Components/Navbar.jsx';
 const MainRoute = ({ children }) => {
   const auth = useAuth();
   const location = useLocation();
-  return auth.loggedIn ? (
+  return auth.currentUser ? (
     children
   ) : (
     <Navigate to="/login" state={{ from: location }} />

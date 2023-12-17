@@ -4,17 +4,34 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
+import { actionsChannels } from '../../slices/channelsSlice.js';
 import store from '../../slices/index.js';
 import notify from '../../utils/notify.js';
 
 const generateOnSubmit = ({
-  disableButtons, enableButtons, removeChannel, modalInfo, onHide, t,
+  disableButtons,
+  enableButtons,
+  removeChannel,
+  modalInfo,
+  channelsState,
+  onHide,
+  t,
 }) => async (e) => {
   e.preventDefault();
   disableButtons();
   const channelIdToRemove = modalInfo.item;
   try {
-    await removeChannel(channelIdToRemove);
+    await removeChannel(channelIdToRemove).then(() => {
+      // console.log(channelsState.ids[0]);
+      if (channelsState.currentChannelId === channelIdToRemove.id) {
+        store.dispatch(
+          actionsChannels.setCurrentChannel({
+            channelId: channelsState.ids[0],
+          }),
+        );
+        sessionStorage.setItem('currentChannelId', channelsState.ids[0]);
+      }
+    });
     notify(t('authForm.fetchingErrors.channelRemovingDelivered'));
   } catch (error) {
     notify(t('authForm.fetchingErrors.channelRemovingDeliveryFailed'));
@@ -31,10 +48,12 @@ const Remove = (props) => {
   const { t } = useTranslation();
   const { removeChannel } = useContext(SocketContext);
   const modalInfo = useSelector((state) => state.modal);
+  const channelsState = useSelector((state) => state.channels);
   const onSubmit = generateOnSubmit({
     ...props,
     removeChannel,
     modalInfo,
+    channelsState,
     onHide,
     t,
   });

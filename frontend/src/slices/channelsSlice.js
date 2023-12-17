@@ -13,7 +13,6 @@ const channelsSlice = createSlice({
       const { channel } = action.payload;
       state.entities[channel.id] = channel;
       state.ids.push(channel.id);
-      state.currentChannelId = Number(sessionStorage.getItem('currentChannelId')) ?? channel.id;
     },
     setCurrentChannel(state, action) {
       const { channelId } = action.payload;
@@ -27,7 +26,6 @@ const channelsSlice = createSlice({
       const { channel } = action.payload;
       delete state.entities[channel.id];
       state.ids = state.ids.filter((id) => id !== channel.id);
-      state.currentChannelId = state.entities[state.ids[0]].id;
     },
   },
 });
