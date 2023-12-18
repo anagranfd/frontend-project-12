@@ -8,4 +8,4 @@
 
 ### Description:
 
-Chat application - a simplified version of Slack.
+Chat application - a simplified version of the Slack messenger.

@@ -77,6 +77,7 @@ const ru = {
       newMessageButton: 'Отправить',
     },
     spinner: 'Загрузка...',
+    errorWord: 'Ошибка ',
     title404: 'Страница не найдена',
   },
 };
