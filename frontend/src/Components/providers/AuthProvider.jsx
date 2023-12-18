@@ -2,9 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { AuthContext } from '../../contexts/index.jsx';
 
 const AuthProvider = ({ children }) => {
-  // const [loggedIn, setLoggedIn] = useState(
-  //   localStorage.getItem('isLoggedIn') === 'true',
-  // );
   const username = JSON.parse(localStorage.getItem('user'));
   const [currentUser, setCurrentUser] = useState(username || null);
 
@@ -16,16 +13,12 @@ const AuthProvider = ({ children }) => {
   }, [currentUser]);
 
   const logIn = (user) => {
-    // localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('user', JSON.stringify(user));
-    // setLoggedIn(true);
     setCurrentUser(user);
   };
 
   const logOut = () => {
-    // localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
-    // setLoggedIn(false);
     setCurrentUser(null);
   };
 
@@ -33,7 +26,6 @@ const AuthProvider = ({ children }) => {
     () => ({
       authHeader,
       currentUser,
-      // loggedIn,
       logIn,
       logOut,
     }),

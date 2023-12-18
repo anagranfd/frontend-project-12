@@ -22,7 +22,6 @@ const generateOnSubmit = ({
   const channelIdToRemove = modalInfo.item;
   try {
     await removeChannel(channelIdToRemove).then(() => {
-      // console.log(channelsState.ids[0]);
       if (channelsState.currentChannelId === channelIdToRemove.id) {
         store.dispatch(
           actionsChannels.setCurrentChannel({
