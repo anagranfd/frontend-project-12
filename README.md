@@ -35,15 +35,13 @@ This application is a simplified iteration of the Slack messaging platform, offe
 
 ### Commands
 
-- **install**:
-  Executes `npm ci` to install dependencies in a clean-slate manner, using exact versions from `package-lock.json`.
+- Executes `npm ci` to install dependencies in a clean-slate manner, using exact versions from `package-lock.json`:
 
   ```bash
   make install
   ```
 
-- **start**:
-  Combines the backend and frontend start commands to run both servers simultaneously, useful for full-stack development.
+- Combines the backend and frontend start commands to run both servers simultaneously, useful for full-stack development:
 
   ```bash
   make start
