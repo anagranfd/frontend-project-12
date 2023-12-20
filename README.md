@@ -10,7 +10,7 @@
 
 This application is a simplified iteration of the Slack messaging platform, offering a suitable user experience.
 
-### Technologies Used in the Project
+### Technologies Used in the Project:
 
 - React
 - React Bootstrap
@@ -33,7 +33,7 @@ This application is a simplified iteration of the Slack messaging platform, offe
 
 - **Navigation Bar:** Features a Logout button that signs out the current user and redirects to the Login page.
 
-### Commands
+### Commands:
 
 - Executes `npm ci` to install dependencies in a clean-slate manner, using exact versions from `package-lock.json`:
 
