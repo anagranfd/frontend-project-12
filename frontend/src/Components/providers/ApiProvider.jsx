@@ -3,7 +3,7 @@ import { SocketContext } from '../../contexts/index.jsx';
 
 export const useSocket = () => useContext(SocketContext);
 
-const SocketProvider = ({ socket, children }) => {
+const ApiProvider = ({ socket, children }) => {
   const clarify = useCallback(
     (...arg) => new Promise((res, rej) => {
       socket
@@ -30,4 +30,4 @@ const SocketProvider = ({ socket, children }) => {
   );
 };
 
-export default SocketProvider;
+export default ApiProvider;

@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { SocketContext } from '../../contexts/index.jsx';
 import { actionsModal } from '../../slices/modalSlice.js';
-import { actionsChannels } from '../../slices/channelsSlice.js';
 import store from '../../slices/index.js';
 import notify from '../../utils/notify.js';
 
@@ -23,11 +22,6 @@ const generateOnSubmit = ({
   try {
     await removeChannel(channelIdToRemove).then(() => {
       if (channelsState.currentChannelId === channelIdToRemove.id) {
-        store.dispatch(
-          actionsChannels.setCurrentChannel({
-            channelId: channelsState.ids[0],
-          }),
-        );
         sessionStorage.setItem('currentChannelId', channelsState.ids[0]);
       }
     });

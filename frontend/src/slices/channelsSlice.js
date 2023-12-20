@@ -26,6 +26,10 @@ const channelsSlice = createSlice({
       const { channel } = action.payload;
       delete state.entities[channel.id];
       state.ids = state.ids.filter((id) => id !== channel.id);
+
+      if (state.currentChannelId === channel.id) {
+        [state.currentChannelId] = state.ids;
+      }
     },
   },
 });

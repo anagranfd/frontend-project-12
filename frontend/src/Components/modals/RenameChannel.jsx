@@ -59,7 +59,7 @@ const Rename = (props) => {
   });
 
   const formik = useFormik({
-    initialValues: item,
+    initialValues: { body: item ? item.name : '' },
     validationSchema: RenameChannelSchema,
     onSubmit: generateOnSubmit(
       {

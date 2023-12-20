@@ -8,12 +8,8 @@ import {
 } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import useAuth from './hooks/index.jsx';
-import { socket } from './contexts/index.jsx';
 import AuthProvider from './Components/providers/AuthProvider.jsx';
-import SocketProvider from './Components/providers/SocketProvider.jsx';
-import store from './slices/index.js';
-import { actionsMessages } from './slices/messagesSlice.js';
-import { actionsChannels } from './slices/channelsSlice.js';
+import ApiProvider from './Components/providers/ApiProvider.jsx';
 import Login from './Components/Login';
 import Signup from './Components/Signup';
 import Page404 from './Components/Page404';
@@ -30,7 +26,7 @@ const MainRoute = ({ children }) => {
   );
 };
 
-const App = () => {
+const App = ({ socket }) => {
   const [isLogoutButtonDisabled, setisLogoutButtonDisabled] = useState(false);
 
   const toastContainer = (
@@ -48,29 +44,10 @@ const App = () => {
     />
   );
 
-  socket.on('connect_error', () => {
-    setTimeout(() => {
-      socket.connect();
-    }, 1000);
-  });
-
-  socket.on('newChannel', (channel) => {
-    store.dispatch(actionsChannels.addChannel({ channel }));
-  });
-  socket.on('renameChannel', (channel) => {
-    store.dispatch(actionsChannels.renameChannel({ channel }));
-  });
-  socket.on('removeChannel', (channel) => {
-    store.dispatch(actionsChannels.removeChannel({ channel }));
-  });
-  socket.on('newMessage', (message) => {
-    store.dispatch(actionsMessages.addMessage({ message }));
-  });
-
   return (
     <AuthProvider>
       {toastContainer}
-      <SocketProvider socket={socket}>
+      <ApiProvider socket={socket}>
         <Router>
           <Navbar isLogoutButtonDisabled={isLogoutButtonDisabled} />
           <div className="container">
@@ -91,7 +68,7 @@ const App = () => {
             </Routes>
           </div>
         </Router>
-      </SocketProvider>
+      </ApiProvider>
     </AuthProvider>
   );
 };
